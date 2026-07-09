@@ -84,6 +84,8 @@ export function getHomePageLabel(pages?: Page[]): string {
   return pages?.find((p) => p.pageType === 'home')?.name?.trim() || '';
 }
 
+export const TESTIMONIALS_ROUTE = '/testimonials';
+
 const PAGE_TYPE_PATHS: Record<Page['pageType'], string> = {
   home: '/',
   about: '/about-us',
@@ -91,6 +93,7 @@ const PAGE_TYPE_PATHS: Record<Page['pageType'], string> = {
   'service-list': '/services',
   'blog-list': '/blog',
   'project-detail': '/project-detail',
+  testimonials: TESTIMONIALS_ROUTE,
 };
 
 /** Slug → path when the app uses a dedicated route folder (not `[pageSlug]`). */
@@ -127,9 +130,9 @@ function normalizePageSlug(slug?: string): string {
   return (slug || '').replace(/^\/+|\/+$/g, '').toLowerCase();
 }
 
-export const TESTIMONIALS_ROUTE = '/testimonials';
-
 export function isTestimonialsPage(page: Page): boolean {
+  if (page.pageType === 'testimonials') return true;
+
   const slug = normalizePageSlug(page.slug);
   const name = (page.name || '').trim().toLowerCase();
   if (
@@ -137,7 +140,8 @@ export function isTestimonialsPage(page: Page): boolean {
     slug === 'testimonial' ||
     slug.includes('testimonial') ||
     name === 'testimonials' ||
-    name === 'testimonial'
+    name === 'testimonial' ||
+    name.includes('testimonial')
   ) {
     return true;
   }
@@ -151,7 +155,12 @@ export function isTestimonialsNavItem(item: HeaderNavItem, testimonialsHref = TE
 }
 
 export function findTestimonialsPage(pages?: Page[]): Page | undefined {
-  return pages?.find((p) => isTestimonialsPage(p));
+  const published = pages?.filter((p) => p.status === 'published') ?? [];
+  return (
+    published.find((p) => p.pageType === 'testimonials') ??
+    published.find((p) => isTestimonialsPage(p)) ??
+    published.find((p) => normalizePageSlug(p.slug) === 'testimonials')
+  );
 }
 
 export function getTestimonialsNavItem(pages?: Page[]): HeaderNavItem {
@@ -202,6 +211,7 @@ const PRIMARY_HEADER_NAV: Array<{
     defaultId: 'nav-services',
   },
   {
+    pageType: 'testimonials',
     matchTestimonials: true,
     defaultLabel: 'Testimonials',
     defaultHref: TESTIMONIALS_ROUTE,
@@ -231,7 +241,7 @@ export function getHeaderNavLinks(pages?: Page[]): {
 
   const mainNavLinks: HeaderNavLink[] = PRIMARY_HEADER_NAV.map((item) => {
     const page = item.matchTestimonials
-      ? findTestimonialsPage(published) ?? published.find((p) => isTestimonialsPage(p))
+      ? findTestimonialsPage(pages)
       : item.pageType
         ? published.find((p) => p.pageType === item.pageType)
         : undefined;
@@ -328,6 +338,7 @@ const FOOTER_PAGE_TYPE_ORDER: Page['pageType'][] = [
   'home',
   'about',
   'service-list',
+  'testimonials',
   'blog-list',
   'project-detail',
   'contact',

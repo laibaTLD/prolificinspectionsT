@@ -7,13 +7,14 @@ import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
 import { tiptapToText } from '@/app/lib/seo';
 import { cn } from '@/app/lib/utils';
 
-const DEFAULT_VIDEO_URL = 'https://www.facebook.com/share/r/1BYdeUdvKK/';
+const DEFAULT_VIDEO_URL = 'https://www.facebook.com/reel/546563248337315';
+const DEFAULT_VIDEO_THUMBNAIL = '/inspection-reel.jpg';
 
 const DEFAULT_TITLE =
-  'California Termite, Home, Roof, Sewer Lateral, Pool Inspections, & Natural Hazard Disclosures';
+  'Professional Home & Property Inspections in Dublin, CA';
 
 const DEFAULT_DESCRIPTION =
-  'HomeGuard Incorporated is a family of companies that have been serving the real estate transaction process in California since 1989. We offer a wide range of services including termite, home, roof, sewer lateral, pool inspections, and natural hazard disclosures. Our experienced professionals are dedicated to providing thorough, reliable inspections that help protect your investment.';
+  'Prolific Inspections serves Dublin, CA and the Tri-Valley with licensed home, termite, roof, sewer lateral, pool inspections, and natural hazard disclosures. Our certified inspectors help buyers, sellers, and agents throughout Alameda County make confident real estate decisions.';
 
 interface CompanyDetailSectionProps {
   companyDetailSection?: Page['companyDetailSection'];
@@ -74,13 +75,13 @@ function SocialIcon({ platform }: { platform: SocialPlatform }) {
   }
 }
 
-const CERTIFICATIONS = [
-  { id: 'spcb', label: 'SPCB Structural Pest Control Board', Logo: SpcbLogo },
-  { id: 'ashi', label: 'ASHI American Society of Home Inspectors', Logo: AshiLogo },
-  { id: 'cslb', label: 'California Contractors State License Board', Logo: CslbLogo },
-  { id: 'car', label: 'California Association of Realtors', Logo: CarLogo },
-  { id: 'nassco', label: 'NASSCO National Association of Sewer Service Companies', Logo: NasscoLogo },
-] as const;
+function PlayIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden>
+      <path fill="currentColor" d="M8 5v14l11-7z" />
+    </svg>
+  );
+}
 
 function SpcbLogo() {
   return (
@@ -96,8 +97,8 @@ function SpcbLogo() {
       <text x="96" y="34" fill="#5ba4d9" fontSize="28" fontWeight="700" fontFamily="Arial, sans-serif">
         SPCB
       </text>
-      <text x="96" y="50" fill="#5ba4d9" fontSize="8" fontWeight="700" fontFamily="Arial, sans-serif">
-        STRUCTURAL PEST CONTROL BOARD
+      <text x="96" y="50" fill="#5ba4d9" fontSize="7" fontWeight="700" fontFamily="Arial, sans-serif">
+        TERMITE &amp; WDO INSPECTION
       </text>
     </svg>
   );
@@ -146,51 +147,85 @@ function CslbLogo() {
       <text x="72" y="42" fill="#111" fontSize="11" fontWeight="700" fontFamily="Arial, sans-serif">
         STATE LICENSE BOARD
       </text>
-      <text x="72" y="58" fill="#111" fontSize="10" fontFamily="Arial, sans-serif">
-        www.cslb.ca.gov
+      <text x="72" y="58" fill="#111" fontSize="9" fontFamily="Arial, sans-serif">
+        Licensed Inspection Services
       </text>
     </svg>
   );
 }
 
-function CarLogo() {
+function DublinLogo() {
   return (
-    <svg viewBox="0 0 220 72" className="hg-cert-logo-svg" role="img" aria-label="California Association of Realtors">
-      <polygon points="20,12 44,36 20,60 44,60 44,12" fill="#111" />
+    <svg viewBox="0 0 220 72" className="hg-cert-logo-svg" role="img" aria-label="Dublin CA inspections">
+      <circle cx="30" cy="36" r="22" fill="none" stroke="#1f5fa8" strokeWidth="3" />
+      <path d="M30 22 L42 36 L30 50 L18 36 Z" fill="#1f5fa8" />
+      <circle cx="30" cy="34" r="4" fill="#fff" />
+      <text x="58" y="30" fill="#111" fontSize="16" fontWeight="700" fontFamily="Arial, sans-serif">
+        DUBLIN, CA
+      </text>
+      <text x="58" y="46" fill="#111" fontSize="9" fontWeight="700" fontFamily="Arial, sans-serif">
+        TRI-VALLEY HOME INSPECTIONS
+      </text>
+      <text x="58" y="58" fill="#111" fontSize="8" fontFamily="Arial, sans-serif">
+        Alameda County Service Area
+      </text>
+    </svg>
+  );
+}
+
+function InternachiLogo() {
+  return (
+    <svg viewBox="0 0 220 72" className="hg-cert-logo-svg" role="img" aria-label="InterNACHI">
+      <rect x="6" y="14" width="48" height="44" rx="4" fill="#c41e3a" />
       <path
-        d="M26 24c6-4 14-4 20 0 4 3 6 7 6 12s-2 9-6 12c-6 4-14 4-20 0"
-        fill="#fff"
-        opacity="0.9"
+        d="M18 28h24M18 36h24M18 44h16"
+        stroke="#fff"
+        strokeWidth="3"
+        strokeLinecap="round"
       />
-      <text x="56" y="34" fill="#111" fontSize="12" fontWeight="700" fontFamily="Georgia, serif">
-        CALIFORNIA ASSOCIATION
+      <text x="64" y="30" fill="#111" fontSize="18" fontWeight="800" fontFamily="Arial, sans-serif">
+        InterNACHI
       </text>
-      <text x="56" y="50" fill="#111" fontSize="12" fontWeight="700" fontFamily="Georgia, serif">
-        OF REALTORS®
+      <text x="64" y="44" fill="#111" fontSize="9" fontWeight="700" fontFamily="Arial, sans-serif">
+        CERTIFIED HOME INSPECTOR
+      </text>
+      <text x="64" y="56" fill="#111" fontSize="8" fontFamily="Arial, sans-serif">
+        Dublin &amp; Bay Area Inspections
       </text>
     </svg>
   );
 }
 
-function NasscoLogo() {
-  return (
-    <svg viewBox="0 0 220 72" className="hg-cert-logo-svg" role="img" aria-label="NASSCO">
-      <circle cx="30" cy="36" r="22" fill="#1a3f7a" />
-      <text x="30" y="43" textAnchor="middle" fill="#fff" fontSize="24" fontWeight="700" fontFamily="Arial, sans-serif">
-        N
-      </text>
-      <text x="62" y="34" fill="#1a3f7a" fontSize="24" fontWeight="800" fontFamily="Arial, sans-serif">
-        NASSCO
-      </text>
-      <text x="62" y="50" fill="#1a3f7a" fontSize="7.5" fontWeight="700" fontFamily="Arial, sans-serif">
-        NATIONAL ASSOCIATION OF SEWER
-      </text>
-      <text x="62" y="60" fill="#1a3f7a" fontSize="7.5" fontWeight="700" fontFamily="Arial, sans-serif">
-        SERVICE COMPANIES
-      </text>
-    </svg>
-  );
-}
+const CERTIFICATIONS_TITLE =
+  'Inspection Certifications, Licensing & Memberships — Dublin, CA';
+
+const CERTIFICATIONS = [
+  {
+    id: 'ashi',
+    label: 'ASHI Certified Home Inspector — Dublin & Tri-Valley',
+    Logo: AshiLogo,
+  },
+  {
+    id: 'spcb',
+    label: 'SPCB Licensed Termite & WDO Inspection — California',
+    Logo: SpcbLogo,
+  },
+  {
+    id: 'cslb',
+    label: 'CSLB Licensed Contractor — California Inspection Services',
+    Logo: CslbLogo,
+  },
+  {
+    id: 'dublin',
+    label: 'Serving Dublin, CA & Alameda County',
+    Logo: DublinLogo,
+  },
+  {
+    id: 'internachi',
+    label: 'InterNACHI Certified Home Inspector',
+    Logo: InternachiLogo,
+  },
+] as const;
 
 export function CompanyDetailSection({
   companyDetailSection,
@@ -224,21 +259,52 @@ export function CompanyDetailSection({
     <section id="company-details" className={cn('hg-section hg-company-detail-section', className)}>
       <div className="container mx-auto px-4 lg:px-8">
         <div className="hg-company-detail-grid">
+          <div className="hg-company-detail-content">
+            <h2 className="hg-company-detail-title">{title}</h2>
+            <p className="hg-company-detail-desc">{description}</p>
+
+            <div className="hg-company-detail-actions">
+              <a
+                href={videoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hg-btn hg-company-video-cta"
+              >
+                <PlayIcon className="h-4 w-4" />
+                Watch Video
+              </a>
+
+              {phoneNumber && (
+                <p className="hg-company-detail-cta">
+                  Schedule an Appointment{' '}
+                  <a href={`tel:${phoneNumber.replace(/\s/g, '')}`} className="hg-company-detail-phone">
+                    ({phoneNumber})
+                  </a>
+                </p>
+              )}
+            </div>
+          </div>
+
           <div className="hg-company-detail-media">
             <a
               href={videoUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="hg-company-video-frame hg-company-video-thumb-link"
-              aria-label="Watch on Facebook"
+              aria-label="Watch inspection video on Facebook"
             >
               <Image
-                src="/fb.png"
-                alt="Prolific Inspections Facebook reel"
+                src={DEFAULT_VIDEO_THUMBNAIL}
+                alt="Prolific Inspections home inspection video"
                 fill
                 className="object-cover object-top"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
+              <span className="hg-company-video-play" aria-hidden>
+                <span className="hg-company-video-play-btn">
+                  <PlayIcon className="h-7 w-7" />
+                </span>
+              </span>
             </a>
 
             {socialLinks.length > 0 && (
@@ -258,24 +324,10 @@ export function CompanyDetailSection({
               </div>
             )}
           </div>
-
-          <div className="hg-company-detail-content">
-            <h2 className="hg-company-detail-title">{title}</h2>
-            <p className="hg-company-detail-desc">{description}</p>
-
-            {phoneNumber && (
-              <p className="hg-company-detail-cta">
-                Schedule an Appointment{' '}
-                <a href={`tel:${phoneNumber.replace(/\s/g, '')}`} className="hg-company-detail-phone">
-                  ({phoneNumber})
-                </a>
-              </p>
-            )}
-          </div>
         </div>
 
         <div className="hg-company-detail-certs">
-          <h3 className="hg-certifications-title">Certifications, Licensing &amp; Memberships</h3>
+          <h3 className="hg-certifications-title">{CERTIFICATIONS_TITLE}</h3>
           <div className="hg-certifications-logos">
             {CERTIFICATIONS.map(({ id, label, Logo }) => (
               <div key={id} className="hg-certifications-logo-item" title={label}>

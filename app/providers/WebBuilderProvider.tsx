@@ -1,8 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { Site, Page, Service, BlogPost, Project } from '@/app/lib/types';
 import { siteApi, pageApi, serviceApi, blogApi, projectApi, testimonialApi, serviceAreaApi } from '@/app/lib/api';
+import type { InitialSiteData } from '@/app/lib/loadInitialSiteData';
 
 // Site slug from environment variable
 const SITE_SLUG = process.env.NEXT_PUBLIC_WEBBUILDER_SITE_SLUG;
@@ -60,77 +61,102 @@ export const useWebBuilder = () => {
 
 interface WebBuilderProviderProps {
   children: ReactNode;
+  initialData?: InitialSiteData | null;
 }
 
-export const WebBuilderProvider: React.FC<WebBuilderProviderProps> = ({ children }) => {
-  const [site, setSite] = useState<Site | null>(null);
-  const [pages, setPages] = useState<Page[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [testimonials, setTestimonials] = useState<{ title?: string; description?: string; testimonials: any[] } | null>(null);
-  const [serviceAreaPages, setServiceAreaPages] = useState<any[]>([]);
+export const WebBuilderProvider: React.FC<WebBuilderProviderProps> = ({
+  children,
+  initialData = null,
+}) => {
+  const [site, setSite] = useState<Site | null>(initialData?.site ?? null);
+  const [pages, setPages] = useState<Page[]>(initialData?.pages ?? []);
+  const [services, setServices] = useState<Service[]>(initialData?.services ?? []);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(initialData?.blogPosts ?? []);
+  const [projects, setProjects] = useState<Project[]>(initialData?.projects ?? []);
+  const [testimonials, setTestimonials] = useState<{
+    title?: string;
+    description?: string;
+    testimonials: any[];
+  } | null>(initialData?.testimonials ?? null);
+  const [serviceAreaPages, setServiceAreaPages] = useState<any[]>(
+    initialData?.serviceAreaPages ?? []
+  );
   const [currentPage, setCurrentPage] = useState<Page | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
+  const hasHydratedRef = useRef(Boolean(initialData));
 
-  const loadSite = async (slug: string) => {
+  const loadSite = async (slug: string, options?: { background?: boolean }) => {
+    const background = options?.background ?? false;
+
     try {
-      setLoading(true);
-      setError(null);
-      
-      // Use real API when backend is available
-      const siteData = await siteApi.getSiteBySlug(slug);
+      if (!background) {
+        setLoading(true);
+        setError(null);
+      }
+
+      const siteData = await siteApi.getSiteBySlug(slug, background ? { silent: true } : undefined);
       setSite(siteData);
-      
+
       await Promise.all([
-        loadPages(siteData.slug),
-        loadServicesBySiteSlug(siteData.slug),
+        loadPages(siteData.slug, background),
+        loadServicesBySiteSlug(siteData.slug, background),
         loadBlogPosts(siteData.slug),
-        loadProjects(siteData.slug),
+        loadProjects(siteData.slug, undefined, background),
         loadTestimonials(siteData.slug),
-        loadServiceAreaPages(siteData.slug),
+        loadServiceAreaPages(siteData.slug, background),
       ]);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to load site';
-      setError(
-        msg.includes('500')
-          ? 'The site builder API is temporarily unavailable. Refresh the page or try again shortly.'
-          : msg
-      );
+      if (!background) {
+        const msg = err instanceof Error ? err.message : 'Failed to load site';
+        setError(
+          msg.includes('500')
+            ? 'The site builder API is temporarily unavailable. Refresh the page or try again shortly.'
+            : msg
+        );
+      }
     } finally {
-      setLoading(false);
+      if (!background) {
+        setLoading(false);
+      }
     }
   };
 
   const loadPage = async (siteSlug: string, pageSlug: string) => {
     try {
-      setLoading(true);
       setError(null);
       const pageData = await pageApi.getPageBySlug(siteSlug, pageSlug);
       setCurrentPage(pageData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load page');
-    } finally {
-      setLoading(false);
     }
   };
 
-  const loadPages = async (siteSlug: string) => {
+  const loadPages = async (siteSlug: string, silent = false) => {
     try {
-      const pagesData = await pageApi.getPagesBySite(siteSlug);
+      const pagesData = await pageApi.getPagesBySite(
+        siteSlug,
+        silent ? { silent: true } : undefined
+      );
       setPages(pagesData);
     } catch (err) {
-      console.warn('Failed to load pages:', err instanceof Error ? err.message : 'Unknown error');
+      if (!silent) {
+        console.warn('Failed to load pages:', err instanceof Error ? err.message : 'Unknown error');
+      }
     }
   };
 
-  const loadServicesBySiteSlug = async (siteSlug: string) => {
+  const loadServicesBySiteSlug = async (siteSlug: string, silent = false) => {
     try {
-      const servicesData = await serviceApi.getServicesBySite(siteSlug);
+      const servicesData = await serviceApi.getServicesBySite(
+        siteSlug,
+        silent ? { silent: true } : undefined
+      );
       setServices(servicesData);
     } catch (err) {
-      console.warn('Failed to load services:', err instanceof Error ? err.message : 'Unknown error');
+      if (!silent) {
+        console.warn('Failed to load services:', err instanceof Error ? err.message : 'Unknown error');
+      }
     }
   };
 
@@ -143,12 +169,18 @@ export const WebBuilderProvider: React.FC<WebBuilderProviderProps> = ({ children
     }
   };
 
-  const loadProjects = async (siteSlug: string, limit?: number) => {
+  const loadProjects = async (siteSlug: string, limit?: number, silent = false) => {
     try {
-      const projectsData = await projectApi.getProjectsBySite(siteSlug, limit);
+      const projectsData = await projectApi.getProjectsBySite(
+        siteSlug,
+        limit,
+        silent ? { silent: true } : undefined
+      );
       setProjects(projectsData);
     } catch (err) {
-      console.warn('Failed to load projects:', err instanceof Error ? err.message : 'Unknown error');
+      if (!silent) {
+        console.warn('Failed to load projects:', err instanceof Error ? err.message : 'Unknown error');
+      }
     }
   };
 
@@ -164,23 +196,38 @@ export const WebBuilderProvider: React.FC<WebBuilderProviderProps> = ({ children
     }
   };
 
-  const loadServiceAreaPages = async (siteSlug: string) => {
+  const loadServiceAreaPages = async (siteSlug: string, silent = false) => {
     try {
-      const serviceAreaPagesData = await serviceAreaApi.getServiceAreaPagesBySite(siteSlug);
+      const serviceAreaPagesData = await serviceAreaApi.getServiceAreaPagesBySite(
+        siteSlug,
+        silent ? { silent: true } : undefined
+      );
       setServiceAreaPages(serviceAreaPagesData);
     } catch (err) {
-      console.warn('Failed to load service area pages:', err instanceof Error ? err.message : 'Unknown error');
+      if (!silent) {
+        console.warn(
+          'Failed to load service area pages:',
+          err instanceof Error ? err.message : 'Unknown error'
+        );
+      }
     }
   };
 
-  // Auto-load site from env variable on mount
+  // Auto-load site from env variable on mount (skip blocking fetch when server prefetched data).
   useEffect(() => {
     if (!SITE_SLUG) {
       setError('NEXT_PUBLIC_WEBBUILDER_SITE_SLUG environment variable is not defined. Please check your .env file.');
       setLoading(false);
       return;
     }
-    loadSite(SITE_SLUG);
+
+    if (hasHydratedRef.current) {
+      hasHydratedRef.current = false;
+      void loadSite(SITE_SLUG, { background: true });
+      return;
+    }
+
+    void loadSite(SITE_SLUG);
   }, []);
 
   // Poll site for builder edits (theme, service areas, business info, etc.)

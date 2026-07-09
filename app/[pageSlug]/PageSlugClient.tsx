@@ -22,8 +22,8 @@ import { ContactSection } from '@/app/components/sections/ContactSection';
 import { BlogSection } from '@/app/components/sections/BlogSection';
 import { ServingAreasSection } from '@/app/components/sections/ServingAreasSection';
 import api from '@/app/lib/fetch-api';
+import { isTestimonialsPage } from '@/app/lib/siteContent';
 import { Page, ServiceAreaPage } from '@/app/lib/types';
-import { PageContentLoader } from '@/app/components/ui/PageContentLoader';
 
 interface PageSlugClientProps {
   pageSlug: string;
@@ -74,8 +74,8 @@ export default function PageSlugClient({ pageSlug: pageSlugProp }: PageSlugClien
     }
   }, [pageSlug, pages, loading, setCurrentPage, loadServiceAreaPage]);
 
-  if (loading || serviceAreaLoading) {
-    return <PageContentLoader />;
+  if ((loading && pages.length === 0) || serviceAreaLoading) {
+    return null;
   }
 
   const displayPage = currentPage || serviceAreaPage;
@@ -164,7 +164,7 @@ export default function PageSlugClient({ pageSlug: pageSlugProp }: PageSlugClien
           <HeroSection hero={page?.hero} />
         )}
 
-        {page?.slug === 'testimonials' && (
+        {page && isTestimonialsPage(page) && (
           <>
             <HeroSection hero={page?.hero} />
             <TestimonialsSection testimonialsSection={page?.testimonialsSection} />

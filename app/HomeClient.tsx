@@ -16,7 +16,6 @@ import { ContactSection } from './components/sections/ContactSection';
 import { CTASection } from '@/app/components/sections/CTASection';
 import { GallerySection } from '@/app/components/sections/GallerySection';
 import { getThemeColors } from '@/app/lib/themeBuilder';
-import { PageContentLoader } from '@/app/components/ui/PageContentLoader';
 
 export default function HomeClient() {
   const { site, pages, loading, error } = useWebBuilder();
@@ -31,8 +30,8 @@ export default function HomeClient() {
     body: site?.theme?.bodyFont,
   };
 
-  if (loading) {
-    return <PageContentLoader />;
+  if (loading && pages.length === 0 && !site) {
+    return null;
   }
 
   if (error && !site) {

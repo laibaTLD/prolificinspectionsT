@@ -11,6 +11,7 @@ import { HeroIntroProvider } from '@/app/providers/HeroIntroProvider'
 import { Header } from '@/app/components/layout/Header'
 import { siteApi } from '@/app/lib/api'
 import { getSiteIcons } from '@/app/lib/metadata'
+import { loadInitialSiteData } from '@/app/lib/loadInitialSiteData'
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteSlug = process.env.NEXT_PUBLIC_WEBBUILDER_SITE_SLUG
@@ -42,16 +43,18 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const initialData = await loadInitialSiteData(process.env.NEXT_PUBLIC_WEBBUILDER_SITE_SLUG)
+
   return (
     <html lang="en">
       <body suppressHydrationWarning className="antialiased">
         <ErrorBoundary>
-          <WebBuilderProvider>
+          <WebBuilderProvider initialData={initialData}>
             <SiteFavicon />
             <LanguageProvider>
               <LenisProvider>
