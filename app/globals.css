@@ -942,6 +942,7 @@ html.preloader-active::-webkit-scrollbar-thumb {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    height: 100%;
     min-height: 15.5rem;
     padding: 2rem 1.5rem 1.75rem;
     background: color-mix(in srgb, var(--wb-section-bg-light) 88%, var(--wb-page-bg));
@@ -991,6 +992,7 @@ html.preloader-active::-webkit-scrollbar-thumb {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.25rem;
+    align-items: stretch;
   }
 
   @media (min-width: 640px) {
@@ -1030,9 +1032,14 @@ html.preloader-active::-webkit-scrollbar-thumb {
     line-height: 1.35;
     color: var(--wb-text-main);
     margin: 0;
+    min-height: calc(1.0625rem * 1.35 * 2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .hg-service-card-desc {
+    width: 100%;
     max-height: 0;
     opacity: 0;
     overflow: hidden;
@@ -1061,14 +1068,21 @@ html.preloader-active::-webkit-scrollbar-thumb {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     width: 2.25rem;
     height: 2.25rem;
     margin-top: auto;
-    padding-top: 1.25rem;
+    padding: 0;
     border-radius: 9999px;
     background: var(--wb-primary);
     color: var(--wb-text-on-dark);
+    line-height: 0;
     transition: transform 0.25s ease, background-color 0.25s ease;
+  }
+
+  .hg-service-card-arrow svg {
+    display: block;
+    flex-shrink: 0;
   }
 
   .hg-service-card:hover .hg-service-card-arrow,

@@ -174,9 +174,9 @@ export function ServicesSection({
 
               <h3 className="hg-service-card-title">{service.name}</h3>
 
-              {service.description && (
-                <p className="hg-service-card-desc">{service.description}</p>
-              )}
+              <p className="hg-service-card-desc">
+                {service.description || '\u00A0'}
+              </p>
 
               <span className="hg-service-card-arrow" aria-hidden>
                 <svg viewBox="0 0 24 24" className="h-4 w-4">
