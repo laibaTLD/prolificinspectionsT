@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { useMemo } from 'react';
 import type { Page } from '@/app/lib/types';
 import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
-import { getBrandName } from '@/app/lib/siteContent';
 import { tiptapToText } from '@/app/lib/seo';
 import { cn } from '@/app/lib/utils';
 
@@ -13,86 +12,46 @@ interface WhyChooseUsSectionProps {
   className?: string;
 }
 
-type AppStoreCard = {
-  id: string;
-  label: string;
-  platform: 'android' | 'iphone';
-  href?: string;
-};
-
 const DEFAULT_IMAGE =
   'https://images.pexels.com/photos/4063856/pexels-photo-4063856.jpeg?auto=compress&cs=tinysrgb&w=1200';
 
 const DEFAULT_DESCRIPTION =
   'Schedule inspections, reschedule inspections, cancel inspections, view service area maps, view reports, view the amount due, live chat with Customer Care, and edit your personal information.';
 
+const INSTAGRAM_QR = {
+  src: '/qrcode_372293605_760b597e22566c951f982703ceb64723.png',
+  href: 'https://www.instagram.com/',
+};
+
 function isUrl(value: string): boolean {
   return /^https?:\/\//i.test(value.trim());
 }
 
-function AndroidIcon() {
+function InstagramIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-8 w-8" aria-hidden>
       <path
         fill="currentColor"
-        d="M17.6 11.5l1.5-2.6a.7.7 0 00-1.2-.7l-1.6 2.8a8.9 8.9 0 00-7.6 0L7.1 8.2a.7.7 0 00-1.2.7l1.5 2.6A7.1 7.1 0 004 18.2h16a7.1 7.1 0 00-3.6-6.7zM8.5 16.4a.9.9 0 110-1.8.9.9 0 010 1.8zm7 0a.9.9 0 110-1.8.9.9 0 010 1.8z"
+        d="M7 3h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7a4 4 0 014-4zm5 5a5 5 0 100 10 5 5 0 000-10zm6.5-.9a1.1 1.1 0 11-2.2 0 1.1 1.1 0 012.2 0z"
       />
     </svg>
   );
 }
 
-function AppleIcon() {
+function QrImage({ src, alt, href }: { src: string; alt: string; href: string }) {
   return (
-    <svg viewBox="0 0 24 24" className="h-8 w-8" aria-hidden>
-      <path
-        fill="currentColor"
-        d="M16.7 13.1c-.1-2.2 1.8-3.3 1.9-3.4-1-.1-2-.6-2.6-1.4-.6-.8-1-1.9-.9-3 1-.1 2 .6 2.5 1.4.5-.9 1.4-1.5 2.4-1.5.1 1-.3 2-.9 2.8 1.6 1 2.7 2.5 2.4 4.8-.2 1.9-1.1 3.9-2.5 5.3-.9.9-2 1.9-3.4 1.9-1.3 0-1.7-.8-3.2-.8s-1.9.8-3.1.8c-1.3 0-2.3-.9-3.2-1.9-2.2-2.4-3.9-6.8-1.6-9.8 1.1-1.6 3.1-2.6 5.2-2.6zM14.9 4.8c.7-.9 1.2-2.1 1.1-3.3-1.1.1-2.4.7-3.1 1.6-.7.8-1.2 2-1 3.2 1.2.1 2.4-.6 3-1.5z"
-      />
-    </svg>
+    <a href={href} target="_blank" rel="noopener noreferrer" className="hg-download-app-qr-link">
+      <div className="hg-download-app-qr">
+        <Image
+          src={src}
+          alt={alt}
+          width={140}
+          height={140}
+          className="h-full w-full object-contain"
+        />
+      </div>
+    </a>
   );
-}
-
-function QrPlaceholder({ label, href }: { label: string; href?: string }) {
-  const content = (
-    <div className="hg-download-app-qr" aria-hidden={!href}>
-      <svg viewBox="0 0 120 120" className="h-full w-full">
-        <rect width="120" height="120" fill="#fff" />
-        <rect x="8" y="8" width="28" height="28" fill="#111" />
-        <rect x="84" y="8" width="28" height="28" fill="#111" />
-        <rect x="8" y="84" width="28" height="28" fill="#111" />
-        <rect x="14" y="14" width="16" height="16" fill="#fff" />
-        <rect x="90" y="14" width="16" height="16" fill="#fff" />
-        <rect x="14" y="90" width="16" height="16" fill="#fff" />
-        <rect x="44" y="12" width="8" height="8" fill="#111" />
-        <rect x="56" y="12" width="8" height="8" fill="#111" />
-        <rect x="44" y="24" width="8" height="8" fill="#111" />
-        <rect x="68" y="24" width="8" height="8" fill="#111" />
-        <rect x="44" y="44" width="32" height="32" fill="#fff" stroke="#111" strokeWidth="4" />
-        <text x="60" y="66" textAnchor="middle" fill="#111" fontSize="8" fontWeight="700">
-          APP
-        </text>
-        <rect x="12" y="44" width="8" height="8" fill="#111" />
-        <rect x="24" y="56" width="8" height="8" fill="#111" />
-        <rect x="84" y="44" width="8" height="8" fill="#111" />
-        <rect x="96" y="56" width="8" height="8" fill="#111" />
-        <rect x="44" y="84" width="8" height="8" fill="#111" />
-        <rect x="56" y="96" width="8" height="8" fill="#111" />
-        <rect x="68" y="84" width="8" height="8" fill="#111" />
-        <rect x="92" y="84" width="8" height="8" fill="#111" />
-      </svg>
-      <span className="sr-only">{label}</span>
-    </div>
-  );
-
-  if (href) {
-    return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className="hg-download-app-qr-link">
-        {content}
-      </a>
-    );
-  }
-
-  return content;
 }
 
 export function WhyChooseUsSection({
@@ -100,7 +59,6 @@ export function WhyChooseUsSection({
   className,
 }: WhyChooseUsSectionProps) {
   const { site } = useWebBuilder();
-  const brandName = getBrandName(site) || 'HomeGuard';
 
   const title = useMemo(
     () => tiptapToText(whyChooseUsSection?.title) || 'Download the App',
@@ -112,25 +70,29 @@ export function WhyChooseUsSection({
     [whyChooseUsSection?.description]
   );
 
-  const appStores = useMemo((): AppStoreCard[] => {
+  const instagram = useMemo(() => {
     const items = whyChooseUsSection?.items ?? [];
-    const platforms: Array<'android' | 'iphone'> = ['android', 'iphone'];
+    const instagramItem =
+      items.find((item) => {
+        const titleText = tiptapToText(item?.title).toLowerCase();
+        const descText = tiptapToText(item?.description).toLowerCase();
+        return titleText.includes('instagram') || descText.includes('instagram');
+      }) ?? items[2];
 
-    return platforms.map((platform, index) => {
-      const item = items[index];
-      const itemTitle = tiptapToText(item?.title);
-      const itemDescription = tiptapToText(item?.description);
-      const defaultLabel =
-        platform === 'android' ? `${brandName} Android App` : `${brandName} iPhone App`;
+    const label = tiptapToText(instagramItem?.title) || 'Instagram';
+    const itemUrl = tiptapToText(instagramItem?.description);
+    const socialUrl = site?.socialLinks?.find(
+      (link) => link.platform === 'instagram' && link.url?.trim()
+    )?.url;
 
-      return {
-        id: platform,
-        platform,
-        label: itemTitle || defaultLabel,
-        href: itemDescription && isUrl(itemDescription) ? itemDescription.trim() : undefined,
-      };
-    });
-  }, [whyChooseUsSection?.items, brandName]);
+    return {
+      label,
+      href:
+        (itemUrl && isUrl(itemUrl) ? itemUrl.trim() : undefined) ??
+        socialUrl ??
+        INSTAGRAM_QR.href,
+    };
+  }, [whyChooseUsSection?.items, site?.socialLinks]);
 
   if (!whyChooseUsSection || whyChooseUsSection.enabled === false) return null;
 
@@ -140,7 +102,7 @@ export function WhyChooseUsSection({
         <div className="hg-download-app-media">
           <Image
             src={DEFAULT_IMAGE}
-            alt="Download our inspection app"
+            alt="Prolific Inspections"
             fill
             className="object-cover object-center"
             sizes="(max-width: 1024px) 100vw, 50vw"
@@ -154,13 +116,15 @@ export function WhyChooseUsSection({
             <p className="hg-download-app-desc">{description}</p>
 
             <div className="hg-download-app-stores">
-              {appStores.map((store) => (
-                <div key={store.id} className="hg-download-app-store">
-                  {store.platform === 'android' ? <AndroidIcon /> : <AppleIcon />}
-                  <p className="hg-download-app-store-label">{store.label}</p>
-                  <QrPlaceholder label={store.label} href={store.href} />
-                </div>
-              ))}
+              <div className="hg-download-app-store">
+                <InstagramIcon />
+                <p className="hg-download-app-store-label">{instagram.label}</p>
+                <QrImage
+                  src={INSTAGRAM_QR.src}
+                  alt={`${instagram.label} QR code`}
+                  href={instagram.href}
+                />
+              </div>
             </div>
           </div>
         </div>

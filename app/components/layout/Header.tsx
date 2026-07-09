@@ -323,7 +323,7 @@ export function Header() {
   }, [isOpen]);
 
   return (
-    <header className="fixed w-full z-[100] top-0 shadow-sm">
+    <header className="relative w-full z-[100] shadow-sm">
       <div className="hg-header-shell">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="hg-header-main">
@@ -428,7 +428,6 @@ export function Header() {
         className={`fixed inset-0 z-[99] bg-[var(--wb-page-bg)] transition-transform duration-300 lg:hidden ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
-        style={{ top: 'var(--wb-header-height)' }}
       >
         <div className="flex flex-col h-full px-6 py-8 overflow-y-auto">
           <div className="grid grid-cols-2 gap-3 mb-6">

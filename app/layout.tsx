@@ -6,6 +6,7 @@ import { ThemeFontWrapper } from './components/ui/ThemeFontWrapper'
 import { SiteFavicon } from './components/ui/SiteFavicon'
 import { LanguageProvider } from '@/app/i18n/LanguageProvider'
 import { LenisProvider } from '@/app/components/cinematic/LenisProvider'
+import { SectionScrollAnimations } from '@/app/components/cinematic/SectionScrollAnimations'
 import { AmbientFoundation } from '@/app/components/cinematic/AmbientFoundation'
 import { HeroIntroProvider } from '@/app/providers/HeroIntroProvider'
 import { Header } from '@/app/components/layout/Header'
@@ -59,10 +60,11 @@ export default async function RootLayout({
             <LanguageProvider>
               <LenisProvider>
                 <AmbientFoundation />
+                <SectionScrollAnimations />
                 <HeroIntroProvider>
                   <ThemeFontWrapper>
                     <Header />
-                    <main className="relative z-10 min-h-screen pt-[var(--wb-header-height)]">
+                    <main className="relative z-10 min-h-screen">
                       {children}
                     </main>
                   </ThemeFontWrapper>

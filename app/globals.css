@@ -1584,8 +1584,8 @@ html.preloader-active::-webkit-scrollbar-thumb {
     align-items: center;
     justify-content: center;
     padding: 2rem 1.25rem;
-    background: var(--wb-primary);
-    color: var(--wb-text-on-dark);
+    background: var(--wb-section-bg-light);
+    color: var(--wb-text-main);
   }
 
   @media (min-width: 1024px) {
@@ -1608,7 +1608,7 @@ html.preloader-active::-webkit-scrollbar-thumb {
     line-height: 1.25;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: var(--wb-text-on-dark);
+    color: var(--wb-text-main);
   }
 
   @media (min-width: 768px) {
@@ -1622,20 +1622,12 @@ html.preloader-active::-webkit-scrollbar-thumb {
     font-family: var(--wb-body-font, sans-serif);
     font-size: 0.9375rem;
     line-height: 1.65;
-    color: var(--wb-text-on-dark);
+    color: var(--wb-text-main);
   }
 
   .hg-download-app-stores {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  @media (min-width: 640px) {
-    .hg-download-app-stores {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1.5rem;
-    }
+    display: flex;
+    justify-content: center;
   }
 
   .hg-download-app-store {
@@ -1643,7 +1635,7 @@ html.preloader-active::-webkit-scrollbar-thumb {
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
-    color: var(--wb-text-on-dark);
+    color: var(--wb-text-main);
   }
 
   .hg-download-app-store-label {
@@ -1652,6 +1644,7 @@ html.preloader-active::-webkit-scrollbar-thumb {
     font-size: 0.875rem;
     font-weight: 600;
     line-height: 1.35;
+    color: var(--wb-text-main);
   }
 
   .hg-download-app-qr-link {
