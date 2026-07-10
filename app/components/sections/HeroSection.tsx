@@ -93,7 +93,7 @@ export function HeroSection({
       descriptionOverride ||
       tiptapToText(hero?.description) ||
       getHeroEyebrowText(hero, site) ||
-      'Professional inspections when you need them.';
+      'Helping Realtors, buyers, and sellers make informed decisions with comprehensive Home, Roof, and Termite inspections—all through one seamless inspection experience.';
 
     result.push({
       title: mainTitle,
@@ -153,7 +153,7 @@ export function HeroSection({
     if (hero?.primaryCta?.label?.trim() && hero?.primaryCta?.href?.trim()) {
       return { label: hero.primaryCta.label.trim(), href: hero.primaryCta.href.trim() };
     }
-    return { href: '#contact', label: 'Order Inspection' };
+    return { href: '#contact', label: 'Schedule Inspection' };
   }, [page, site, pages, hero?.primaryCta]);
 
   const goNext = useCallback(() => {

@@ -63,7 +63,7 @@ export function AboutSection({
     () =>
       titleOverride ||
       tiptapToText(aboutSection?.title) ||
-      'Through Our Work, Beyond Your Expectations',
+      'One Company. Every Inspection You Need.',
     [titleOverride, aboutSection?.title]
   );
 
@@ -71,7 +71,7 @@ export function AboutSection({
     () =>
       descriptionOverride ||
       tiptapToText(aboutSection?.description) ||
-      'Specializing in professional inspections that deliver thorough results and lasting peace of mind for every property we serve.',
+      'Home, Roof, and Termite (WDO) inspections under one trusted brand—helping Realtors, buyers, and sellers move transactions forward with confidence.',
     [descriptionOverride, aboutSection?.description]
   );
 

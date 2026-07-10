@@ -6,21 +6,23 @@ import { usePrefersReducedMotion } from '@/app/hooks/usePrefersReducedMotion';
 import { ensureGsapScroll, gsap, refreshScrollLayout } from '@/app/lib/gsap-scroll';
 
 const SECTION_SELECTOR =
-  'main section:not(#cta):not(#contact), main .hg-section:not(#cta):not(#contact), main .hg-testimonials-section, main .hg-download-app-section';
+  'main section:not(#cta):not(#contact), main .hg-section:not(#cta):not(#contact), main .hg-testimonials-section, main .hg-realtors-section';
 
 const TEXT_REVEAL_SELECTOR = [
   '.hg-section-title',
   '.hg-services-title',
   '.hg-company-detail-title',
   '.hg-certifications-title',
-  '.hg-download-app-title',
+  '.hg-realtors-title',
+  '.hg-realtors-desc',
+  '.hg-one-company-title',
+  '.hg-one-company-subtitle',
   '.hg-company-block h2',
   '.hg-company-block > p',
   '.hg-company-block h4',
   '.hg-section-desc',
   '.hg-company-detail-desc',
   '.hg-company-detail-cta',
-  '.hg-download-app-desc',
   '.hg-testimonials-quote',
   '.hg-testimonials-author',
   '.hg-hero-subtitle',
@@ -35,8 +37,8 @@ const BLOCK_REVEAL_SELECTOR = [
   '.hg-service-card',
   '.hg-faq-item',
   '.hg-company-detail-grid > *',
-  '.hg-download-app-media',
-  '.hg-download-app-store',
+  '.hg-realtors-item',
+  '.hg-one-company-card',
   '.hg-testimonials-main',
   '.hg-satisfaction-badge',
   '.hg-company-detail-certs',

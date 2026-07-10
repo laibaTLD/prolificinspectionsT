@@ -207,7 +207,7 @@ function ServicesMegaMenu({
             {active && (
               <>
                 <h4 className="text-sm font-bold mb-3">{active.name}</h4>
-                <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                <div className="space-y-1.5">
                   {active.areas.length > 0 ? (
                     active.areas.map((area, idx) => (
                       <Link
@@ -232,7 +232,7 @@ function ServicesMegaMenu({
             <Link href={sectionHref} className="block text-sm font-medium hover:text-[var(--wb-accent-dark)] mb-2">
               All Services
             </Link>
-            <div className="space-y-1 max-h-52 overflow-y-auto">
+            <div className="space-y-1">
               {items.map((item, index) => (
                 <Link
                   key={item.slug}
@@ -261,7 +261,11 @@ export function Header() {
 
   const businessName = getBrandName(site) || 'ACE Grading LLC';
   const phoneNumber = site?.business?.phone?.trim() || '';
-  const tagline = getBusinessTagline(site);
+  const cmsTagline = getBusinessTagline(site);
+  const tagline =
+    !cmsTagline || /professional inspection.*delivered by experts/i.test(cmsTagline)
+      ? 'Trusted by Realtors — Home, Roof & Termite Inspections for Every Transaction'
+      : cmsTagline;
 
   const homePage = useMemo(() => pages.find((p) => p.pageType === 'home'), [pages]);
 
@@ -418,11 +422,9 @@ export function Header() {
         </div>
       </nav>
 
-      {tagline && (
-        <div className="hg-announcement-bar">
-          <strong>{tagline}</strong>
-        </div>
-      )}
+      <div className="hg-announcement-bar">
+        <strong>{tagline}</strong>
+      </div>
 
       <div
         className={`fixed inset-0 z-[99] bg-[var(--wb-page-bg)] transition-transform duration-300 lg:hidden ${

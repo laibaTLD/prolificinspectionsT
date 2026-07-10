@@ -19,6 +19,8 @@ interface ServicesSectionProps {
   servicesLimit?: number;
   showViewAllLink?: boolean;
   showAllServices?: boolean;
+  /** Compact strip for below-hero: equal cards, no scroll past hero needed */
+  compact?: boolean;
 }
 
 type DisplayService = {
@@ -28,6 +30,56 @@ type DisplayService = {
   slug: string;
   imageUrl: string;
 };
+
+const PRIORITY_ORDER = ['home', 'roof', 'termite'] as const;
+
+const FALLBACK_SERVICES: DisplayService[] = [
+  {
+    id: 'home',
+    name: 'Home Inspections',
+    description:
+      'A comprehensive visual evaluation of the home’s major systems and components.',
+    slug: 'home-inspection',
+    imageUrl: '',
+  },
+  {
+    id: 'roof',
+    name: 'Roof Inspections',
+    description:
+      'A specialized visual evaluation focused exclusively on the roofing system.',
+    slug: 'roof-inspection',
+    imageUrl: '',
+  },
+  {
+    id: 'termite',
+    name: 'Termite (WDO) Inspections',
+    description:
+      'Licensed WDO inspections for termites, fungus, dry rot, and wood-destroying organisms.',
+    slug: 'termite-inspection',
+    imageUrl: '',
+  },
+];
+
+function shortDescriptionFor(name: string, description: string): string {
+  if (description.trim()) return description.trim();
+  const label = name.toLowerCase();
+  if (label.includes('termite') || label.includes('wdo')) {
+    return 'Licensed WDO inspections for termites, fungus, dry rot, and wood-destroying organisms.';
+  }
+  if (label.includes('roof')) {
+    return 'A specialized visual evaluation focused exclusively on the roofing system.';
+  }
+  if (label.includes('home')) {
+    return 'A comprehensive visual evaluation of the home’s major systems and components.';
+  }
+  return 'Professional inspection services for your real estate transaction.';
+}
+
+function servicePriority(name: string): number {
+  const label = name.toLowerCase();
+  const index = PRIORITY_ORDER.findIndex((key) => label.includes(key));
+  return index === -1 ? PRIORITY_ORDER.length : index;
+}
 
 function mapServiceToDisplay(service: Service): DisplayService {
   const imageUrl = service.thumbnailImage?.url
@@ -107,6 +159,7 @@ export function ServicesSection({
   servicesLimit,
   showViewAllLink = false,
   showAllServices = false,
+  compact = false,
 }: ServicesSectionProps) {
   const { services: allServices, pages } = useWebBuilder();
 
@@ -120,7 +173,10 @@ export function ServicesSection({
             .map((id) => allServices.find((s) => s._id === id))
             .filter((s): s is Service => Boolean(s));
 
-    const mapped = selected.map(mapServiceToDisplay);
+    const mapped = selected
+      .map(mapServiceToDisplay)
+      .sort((a, b) => servicePriority(a.name) - servicePriority(b.name));
+
     const limited =
       typeof servicesLimit === 'number' && servicesLimit > 0
         ? mapped.slice(0, servicesLimit)
@@ -130,8 +186,12 @@ export function ServicesSection({
       ? false
       : published.length > limited.length || mapped.length > limited.length;
 
+    if (compact && limited.length === 0) {
+      return { services: FALLBACK_SERVICES, hasMoreServices: false };
+    }
+
     return { services: limited, hasMoreServices: moreAvailable };
-  }, [servicesSection?.serviceIds, allServices, servicesLimit, showAllServices]);
+  }, [servicesSection?.serviceIds, allServices, servicesLimit, showAllServices, compact]);
 
   const servicesHref = useMemo(() => {
     const servicesPage = pages.find((p) => p.pageType === 'service-list');
@@ -139,24 +199,31 @@ export function ServicesSection({
   }, [pages]);
 
   const title = useMemo(
-    () => tiptapToText(servicesSection?.title) || 'Our Inspection Services',
+    () => tiptapToText(servicesSection?.title) || 'Primary Inspection Services',
     [servicesSection?.title]
   );
 
-  if (!servicesSection || servicesSection.enabled === false) return null;
+  if (!compact && (!servicesSection || servicesSection.enabled === false)) return null;
   if (!services.length) return null;
 
   return (
-    <section id="services" className={cn('hg-section hg-services-section', className)}>
+    <section
+      id="services"
+      className={cn(
+        'hg-section hg-services-section',
+        compact && 'hg-services-section--compact',
+        className
+      )}
+    >
       <div className="container mx-auto px-4 lg:px-8">
-        <h2 className="hg-services-title">{title}</h2>
+        {!compact && <h2 className="hg-services-title">{title}</h2>}
 
-        <div className="hg-services-grid">
+        <div className={cn('hg-services-grid', compact && 'hg-services-grid--compact')}>
           {services.map((service) => (
             <Link
               key={service.id}
               href={`/service/${service.slug}`}
-              className="hg-service-card group"
+              className={cn('hg-service-card group', compact && 'hg-service-card--compact')}
             >
               <div className="hg-service-card-icon">
                 {service.imageUrl ? (
@@ -175,7 +242,7 @@ export function ServicesSection({
               <h3 className="hg-service-card-title">{service.name}</h3>
 
               <p className="hg-service-card-desc">
-                {service.description || '\u00A0'}
+                {shortDescriptionFor(service.name, service.description)}
               </p>
 
               <span className="hg-service-card-arrow" aria-hidden>

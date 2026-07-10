@@ -11,10 +11,10 @@ const DEFAULT_VIDEO_URL = 'https://www.facebook.com/reel/546563248337315';
 const DEFAULT_VIDEO_THUMBNAIL = '/inspection-reel.jpg';
 
 const DEFAULT_TITLE =
-  'Professional Home & Property Inspections in Dublin, CA';
+  'Real Estate Transaction Inspections in Dublin, CA';
 
 const DEFAULT_DESCRIPTION =
-  'Prolific Inspections serves Dublin, CA and the Tri-Valley with licensed home, termite, roof, sewer lateral, pool inspections, and natural hazard disclosures. Our certified inspectors help buyers, sellers, and agents throughout Alameda County make confident real estate decisions.';
+  'Prolific Inspections helps Realtors, buyers, and sellers close with confidence through Home, Roof, and Termite (WDO) inspections—one company, one appointment, clear digital reports.';
 
 interface CompanyDetailSectionProps {
   companyDetailSection?: Page['companyDetailSection'];

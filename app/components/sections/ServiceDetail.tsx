@@ -39,14 +39,13 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({
     // Constructing the CTA object to match your exact CTASection requirements
     const ctaSectionFromService: any = {
         enabled: isCtaEnabled,
-        title: cta?.title || `Excellence in ${service.name}`,
-        description: cta?.description || 'Experience the gold standard in home services. Our team is ready to assist you today.',
+        title: cta?.title || `Schedule Your ${service.name}`,
+        description: cta?.description || 'Helping Realtors, buyers, and sellers move transactions forward with clear reports and fast turnaround.',
         primaryButton: {
-            label: cta?.buttonText || 'Schedule Now',
-            href: cta?.buttonUrl || '/contact',
+            label: cta?.buttonText || 'Schedule Inspection',
+            href: cta?.buttonUrl || '/contact-us',
         },
         image: cta?.image?.url ? { url: cta.image.url } : undefined,
-        // Passing theme colors to ensure consistency
         backgroundColor: themeColors.pageBackground,
     };
 

@@ -9,9 +9,8 @@ import { ServicesSection } from '@/app/components/sections/ServicesSection';
 import { TestimonialsSection } from '@/app/components/sections/TestimonialsSection';
 import { FAQSection } from '@/app/components/sections/FAQSection';
 import { WhyChooseUsSection } from '@/app/components/sections/WhyChooseUsSection';
+import { OneCompanySection } from '@/app/components/sections/OneCompanySection';
 import { CompanyDetailSection } from '@/app/components/sections/CompanyDetailSection';
-import { ProjectsSection } from '@/app/components/sections/ProjectsSection';
-import { BlogSection } from '@/app/components/sections/BlogSection';
 import { ContactSection } from './components/sections/ContactSection';
 import { CTASection } from '@/app/components/sections/CTASection';
 import { GallerySection } from '@/app/components/sections/GallerySection';
@@ -20,11 +19,8 @@ import { getThemeColors } from '@/app/lib/themeBuilder';
 export default function HomeClient() {
   const { site, pages, loading, error } = useWebBuilder();
 
-  // Get theme colors from site using the new dynamic CSS variable system
-
   const themeColors = getThemeColors(site);
 
-  // Get theme fonts from site
   const themeFonts = {
     heading: site?.theme?.headingFont,
     body: site?.theme?.bodyFont,
@@ -36,16 +32,16 @@ export default function HomeClient() {
 
   if (error && !site) {
     return (
-      <div 
+      <div
         className="min-h-screen flex items-center justify-center p-4"
         style={{ backgroundColor: themeColors.pageBackground }}
       >
-        <div 
+        <div
           className="p-6 rounded-lg max-w-lg text-center"
-          style={{ 
+          style={{
             backgroundColor: themeColors.cardBackground,
             borderColor: themeColors.inactive,
-            borderWidth: '1px'
+            borderWidth: '1px',
           }}
         >
           <h2
@@ -74,23 +70,23 @@ export default function HomeClient() {
 
   if (!displayPage) {
     return (
-      <div 
+      <div
         className="min-h-screen flex flex-col items-center justify-center p-4"
         style={{ backgroundColor: themeColors.pageBackground }}
       >
-        <h2 
+        <h2
           className="text-2xl font-bold mb-4"
-          style={{ 
+          style={{
             color: themeColors.mainText,
-            fontFamily: themeFonts.heading
+            fontFamily: themeFonts.heading,
           }}
         >
           No Home Page Found
         </h2>
-        <p 
-          style={{ 
+        <p
+          style={{
             color: themeColors.secondaryText,
-            fontFamily: themeFonts.body
+            fontFamily: themeFonts.body,
           }}
         >
           Please create a page with type &quot;home&quot; in the site builder.
@@ -108,29 +104,23 @@ export default function HomeClient() {
         fontFamily: themeFonts.body,
       }}
     >
-
       <main>
         <HeroSection hero={displayPage.hero} page={displayPage} />
-        <TestimonialsSection testimonialsSection={displayPage.testimonialsSection} />
         <ServicesSection
           servicesSection={displayPage.servicesSection}
           companyDetailSection={displayPage.companyDetailSection}
           ctaSection={displayPage.ctaSection}
           page={displayPage}
           servicesLimit={3}
-          showViewAllLink
+          compact
         />
-        <AboutSection aboutSection={displayPage.aboutSection} page={displayPage} />
-        <CTASection ctaSection={displayPage.ctaSection} />
         <WhyChooseUsSection whyChooseUsSection={displayPage.whyChooseUsSection} />
+        <OneCompanySection page={displayPage} />
+        <AboutSection aboutSection={displayPage.aboutSection} page={displayPage} />
+        <TestimonialsSection testimonialsSection={displayPage.testimonialsSection} />
         <CompanyDetailSection companyDetailSection={displayPage.companyDetailSection} />
-        <ProjectsSection
-          projectSection={displayPage.projectSection}
-          projectsSection={displayPage.projectsSection}
-          projectsLimit={3}
-        />
+        <CTASection ctaSection={displayPage.ctaSection} />
         <GallerySection gallerySection={displayPage.gallerySection} />
-        <BlogSection blogSection={displayPage.blogSection} />
         <FAQSection faqSection={displayPage.faqSection} />
         <ContactSection contactSection={displayPage.contactSection} />
       </main>

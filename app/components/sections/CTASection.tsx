@@ -51,7 +51,7 @@ export function CTASection({
     () =>
       headingOverride ||
       tiptapToText(ctaSection?.title) ||
-      'Professional Inspections You Can Trust',
+      'Professional Inspections for Every Real Estate Transaction',
     [headingOverride, ctaSection?.title]
   );
 
@@ -59,7 +59,7 @@ export function CTASection({
     () =>
       descriptionOverride ||
       tiptapToText(ctaSection?.description) ||
-      'With extensive knowledge and years of professional experience, we guarantee a better understanding of your inspection needs. The best proof of our customer satisfaction is the fact that so many of them stay with us and refer us to their families, friends, and associates.',
+      'Trusted by Realtors to help transactions close smoothly with Home, Roof, and Termite inspections—and reports designed for escrow.',
     [descriptionOverride, ctaSection?.description]
   );
 
@@ -70,7 +70,7 @@ export function CTASection({
     if (label && href) return { label, href: normalizeHref(href) };
     const contactPage = pages?.find((p) => p.pageType === 'contact');
     return {
-      label: label || 'Contact Us',
+      label: label || 'Schedule Inspection',
       href: contactPage ? getPageHref(contactPage) : '/contact-us',
     };
   }, [ctaOverride, ctaSection?.primaryButton, pages]);
