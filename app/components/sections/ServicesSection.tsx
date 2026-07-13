@@ -19,7 +19,6 @@ interface ServicesSectionProps {
   servicesLimit?: number;
   showViewAllLink?: boolean;
   showAllServices?: boolean;
-  /** Compact strip for below-hero: equal cards, no scroll past hero needed */
   compact?: boolean;
 }
 
@@ -32,48 +31,6 @@ type DisplayService = {
 };
 
 const PRIORITY_ORDER = ['home', 'roof', 'termite'] as const;
-
-const FALLBACK_SERVICES: DisplayService[] = [
-  {
-    id: 'home',
-    name: 'Home Inspections',
-    description:
-      'A comprehensive visual evaluation of the home’s major systems and components.',
-    slug: 'home-inspection',
-    imageUrl: '',
-  },
-  {
-    id: 'roof',
-    name: 'Roof Inspections',
-    description:
-      'A specialized visual evaluation focused exclusively on the roofing system.',
-    slug: 'roof-inspection',
-    imageUrl: '',
-  },
-  {
-    id: 'termite',
-    name: 'Termite (WDO) Inspections',
-    description:
-      'Licensed WDO inspections for termites, fungus, dry rot, and wood-destroying organisms.',
-    slug: 'termite-inspection',
-    imageUrl: '',
-  },
-];
-
-function shortDescriptionFor(name: string, description: string): string {
-  if (description.trim()) return description.trim();
-  const label = name.toLowerCase();
-  if (label.includes('termite') || label.includes('wdo')) {
-    return 'Licensed WDO inspections for termites, fungus, dry rot, and wood-destroying organisms.';
-  }
-  if (label.includes('roof')) {
-    return 'A specialized visual evaluation focused exclusively on the roofing system.';
-  }
-  if (label.includes('home')) {
-    return 'A comprehensive visual evaluation of the home’s major systems and components.';
-  }
-  return 'Professional inspection services for your real estate transaction.';
-}
 
 function servicePriority(name: string): number {
   const label = name.toLowerCase();
@@ -98,68 +55,12 @@ function mapServiceToDisplay(service: Service): DisplayService {
   };
 }
 
-function ServiceIconFallback({ name }: { name: string }) {
-  const label = name.toLowerCase();
-
-  if (label.includes('termite')) {
-    return (
-      <svg viewBox="0 0 120 100" className="h-full w-full" aria-hidden>
-        <path
-          d="M10 72 L60 42 L110 72 L95 72 L60 52 L25 72 Z"
-          fill="var(--wb-primary)"
-        />
-        <circle cx="60" cy="58" r="22" fill="none" stroke="var(--wb-accent-dark)" strokeWidth="5" />
-        <ellipse cx="60" cy="60" rx="10" ry="6" fill="var(--wb-accent-dark)" />
-        <path
-          d="M48 58 L72 58 M60 52 L60 66"
-          stroke="var(--wb-accent-dark)"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-      </svg>
-    );
-  }
-
-  if (label.includes('roof')) {
-    return (
-      <svg viewBox="0 0 120 100" className="h-full w-full" aria-hidden>
-        <path
-          d="M10 72 L60 38 L110 72 L95 72 L60 50 L25 72 Z"
-          fill="var(--wb-primary)"
-        />
-        <circle cx="78" cy="52" r="16" fill="none" stroke="var(--wb-accent-dark)" strokeWidth="4" />
-        <path d="M70 52 L86 52 M78 44 L78 60" stroke="var(--wb-accent-dark)" strokeWidth="3" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 120 100" className="h-full w-full" aria-hidden>
-      <path d="M10 72 L60 38 L110 72 L95 72 L60 50 L25 72 Z" fill="var(--wb-primary)" />
-      <circle cx="72" cy="48" r="18" fill="none" stroke="var(--wb-accent-dark)" strokeWidth="4" />
-      <path
-        d="M64 52 L76 44"
-        stroke="var(--wb-accent-dark)"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <path
-        d="M66 56 L74 56"
-        stroke="var(--wb-primary)"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 export function ServicesSection({
   servicesSection,
   className,
   servicesLimit,
   showViewAllLink = false,
   showAllServices = false,
-  compact = false,
 }: ServicesSectionProps) {
   const { services: allServices, pages } = useWebBuilder();
 
@@ -186,12 +87,8 @@ export function ServicesSection({
       ? false
       : published.length > limited.length || mapped.length > limited.length;
 
-    if (compact && limited.length === 0) {
-      return { services: FALLBACK_SERVICES, hasMoreServices: false };
-    }
-
     return { services: limited, hasMoreServices: moreAvailable };
-  }, [servicesSection?.serviceIds, allServices, servicesLimit, showAllServices, compact]);
+  }, [servicesSection?.serviceIds, allServices, servicesLimit, showAllServices]);
 
   const servicesHref = useMemo(() => {
     const servicesPage = pages.find((p) => p.pageType === 'service-list');
@@ -199,71 +96,56 @@ export function ServicesSection({
   }, [pages]);
 
   const title = useMemo(
-    () => tiptapToText(servicesSection?.title) || 'Primary Inspection Services',
+    () => tiptapToText(servicesSection?.title),
     [servicesSection?.title]
   );
 
-  if (!compact && (!servicesSection || servicesSection.enabled === false)) return null;
+  if (!servicesSection || servicesSection.enabled === false) return null;
   if (!services.length) return null;
 
   return (
-    <section
-      id="services"
-      className={cn(
-        'hg-section hg-services-section',
-        compact && 'hg-services-section--compact',
-        className
-      )}
-    >
-      <div className="container mx-auto px-4 lg:px-8">
-        {!compact && <h2 className="hg-services-title">{title}</h2>}
+    <section id="services" className={cn('gb-section', className)}>
+      <div className="gb-container">
+        {title ? <h2 className="gb-section-title">{title}</h2> : null}
 
-        <div className={cn('hg-services-grid', compact && 'hg-services-grid--compact')}>
+        <div className="gb-offerings-grid">
           {services.map((service) => (
-            <Link
-              key={service.id}
-              href={`/service/${service.slug}`}
-              className={cn('hg-service-card group', compact && 'hg-service-card--compact')}
-            >
-              <div className="hg-service-card-icon">
-                {service.imageUrl ? (
+            <Link key={service.id} href={`/service/${service.slug}`} className="gb-offering-card">
+              {service.imageUrl ? (
+                <div className="gb-offering-thumb">
                   <Image
                     src={service.imageUrl}
                     alt=""
-                    width={140}
-                    height={110}
-                    className="h-[6.875rem] w-auto max-w-full object-contain"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
                   />
-                ) : (
-                  <ServiceIconFallback name={service.name} />
-                )}
-              </div>
-
-              <h3 className="hg-service-card-title">{service.name}</h3>
-
-              <p className="hg-service-card-desc">
-                {shortDescriptionFor(service.name, service.description)}
-              </p>
-
-              <span className="hg-service-card-arrow" aria-hidden>
-                <svg viewBox="0 0 24 24" className="h-4 w-4">
+                </div>
+              ) : (
+                <svg viewBox="0 0 24 24" className="gb-card-icon" fill="none" aria-hidden>
                   <path
-                    fill="currentColor"
-                    d="M9.29 6.71a1 1 0 011.42 0l4.59 4.59a1 1 0 010 1.42l-4.59 4.59a1 1 0 01-1.42-1.42L13.17 12 9.29 8.12a1 1 0 010-1.41z"
+                    d="M4 12l8-7 8 7v8H4v-8z"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinejoin="round"
                   />
                 </svg>
-              </span>
+              )}
+              <h3 className="gb-offering-title">{service.name}</h3>
+              {service.description ? (
+                <p className="gb-offering-desc">{service.description}</p>
+              ) : null}
             </Link>
           ))}
         </div>
 
-        {showViewAllLink && services.length > 0 && hasMoreServices && (
-          <div className="mt-8 flex justify-center">
-            <Link href={servicesHref} className="hg-btn">
-              See More Services
+        {showViewAllLink && hasMoreServices ? (
+          <div className="gb-section-actions">
+            <Link href={servicesHref} className="gb-btn-outline">
+              View all services
             </Link>
           </div>
-        )}
+        ) : null}
       </div>
     </section>
   );

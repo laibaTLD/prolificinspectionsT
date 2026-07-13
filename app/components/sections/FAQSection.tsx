@@ -23,18 +23,12 @@ export function FAQSection({
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const title = useMemo(
-    () =>
-      titleOverride ||
-      tiptapToText(faqSection?.title) ||
-      'Frequently Asked Questions',
+    () => titleOverride || tiptapToText(faqSection?.title),
     [titleOverride, faqSection?.title]
   );
 
   const description = useMemo(
-    () =>
-      descriptionOverride ||
-      tiptapToText(faqSection?.description) ||
-      'Clear answers to the questions we hear most often.',
+    () => descriptionOverride || tiptapToText(faqSection?.description),
     [descriptionOverride, faqSection?.description]
   );
 
@@ -52,36 +46,28 @@ export function FAQSection({
   if (!questions.length) return null;
 
   return (
-    <section id="faq" className={cn('hg-section wb-surface-page', className)}>
-      <div className="container mx-auto px-4 lg:px-8 max-w-3xl">
-        <h2 className="hg-section-title">{title}</h2>
-        {description && (
-          <p className="hg-section-desc">{description}</p>
-        )}
+    <section id="faq" className={cn('gb-section gb-section-alt', className)}>
+      <div className="gb-container gb-container-narrow">
+        {title ? <h2 className="gb-section-title">{title}</h2> : null}
+        {description ? <p className="gb-section-desc">{description}</p> : null}
 
-        <div>
+        <div className="gb-faq-list">
           {questions.map((faq, index) => {
             const isOpen = openIndex === index;
             return (
-              <div key={index} className="hg-faq-item">
+              <div key={index} className="gb-faq-item">
                 <button
                   type="button"
                   onClick={() => setOpenIndex(isOpen ? null : index)}
-                  className="w-full flex items-center justify-between p-4 text-left"
+                  className="gb-faq-trigger"
                   aria-expanded={isOpen}
                 >
-                  <span className="font-semibold text-[var(--wb-text-main)] pr-4">
-                    {faq.question}
-                  </span>
-                  <span className="text-[var(--wb-primary)] text-xl shrink-0">
-                    {isOpen ? '−' : '+'}
-                  </span>
+                  <span>{faq.question}</span>
+                  <span aria-hidden>{isOpen ? '−' : '+'}</span>
                 </button>
-                {isOpen && faq.answer && (
-                  <div className="px-4 pb-4 text-sm text-[var(--wb-text-secondary)] leading-relaxed border-t border-[var(--color-gray-200)] pt-3">
-                    {faq.answer}
-                  </div>
-                )}
+                {isOpen && faq.answer ? (
+                  <div className="gb-faq-answer">{faq.answer}</div>
+                ) : null}
               </div>
             );
           })}

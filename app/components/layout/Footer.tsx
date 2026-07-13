@@ -84,11 +84,11 @@ function SocialIcon({ platform }: { platform: SocialPlatform }) {
 export function Footer() {
   const { site, pages } = useWebBuilder();
 
-  const businessName = getBrandName(site) || 'HomeGuard';
+  const businessName = getBrandName(site);
 
   const logoSrc = useMemo(() => {
     const raw = site?.footer?.logo?.url || site?.theme?.logoUrl;
-    return raw ? getImageSrc(raw) : '/logo.png';
+    return raw ? getImageSrc(raw) : '';
   }, [site?.footer?.logo?.url, site?.theme?.logoUrl]);
 
   const navLinks = useMemo(() => getFooterNavLinks(pages), [pages]);
@@ -119,7 +119,9 @@ export function Footer() {
     if (fromCms && !fromCms.toLowerCase().includes('brand booster')) {
       return fromCms.replace(/\s*Build by.*$/i, '').trim();
     }
-    return `© ${new Date().getFullYear()} ${businessName} – All Rights Reserved`;
+    return businessName
+      ? `© ${new Date().getFullYear()} ${businessName}`
+      : `© ${new Date().getFullYear()}`;
   }, [site?.footer?.copyright, businessName]);
 
   const corporateOffice = useMemo(() => {
@@ -127,23 +129,27 @@ export function Footer() {
     if (!address?.street && !address?.city) return '';
     const cityStateZip = [address.city, address.state].filter(Boolean).join(', ');
     const tail = [cityStateZip, address.zipCode].filter(Boolean).join(' ');
-    return ['Corporate Office:', address.street, tail].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+    return [address.street, tail].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
   }, [site?.business?.address]);
 
   return (
-    <footer id="footer" className="hg-footer">
-      <div className="hg-footer-main">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="hg-footer-brands">
-            <div className="hg-footer-brand hg-footer-brand-center">
+    <footer id="footer" className="gb-footer">
+      <div className="gb-footer-main">
+        <div className="gb-container">
+          <div className="gb-footer-brands">
+            <div className="gb-footer-brand">
               <Link href="/" className="inline-block">
-                <Image
-                  src={logoSrc}
-                  alt={site?.footer?.logo?.altText?.trim() || businessName}
-                  width={220}
-                  height={72}
-                  className="h-14 w-auto object-contain"
-                />
+                {logoSrc ? (
+                  <Image
+                    src={logoSrc}
+                    alt={site?.footer?.logo?.altText?.trim() || businessName || 'Logo'}
+                    width={220}
+                    height={72}
+                    className="h-14 w-auto object-contain"
+                  />
+                ) : businessName ? (
+                  <span className="gb-footer-brand-text">{businessName}</span>
+                ) : null}
               </Link>
               {footerDescription && footerDescriptionText && (
                 <div className="hg-footer-description">

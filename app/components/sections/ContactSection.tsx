@@ -106,7 +106,7 @@ export function ContactSection({ contactSection, className }: ContactSectionProp
   const showForm = contactSection.showForm !== false;
   const showMap = contactSection.showMap !== false;
   const showContactInfo = contactSection.showContactInfo !== false;
-  const resolvedTitle = tiptapToText(contactSection.title) || 'Contact Us';
+  const resolvedTitle = tiptapToText(contactSection.title);
 
   const hasAddress = Boolean(address?.street || address?.city);
   const hasPhone = Boolean(business?.phone?.trim());
@@ -127,7 +127,7 @@ export function ContactSection({ contactSection, className }: ContactSectionProp
         {showInfoPanel && (
           <div className="hg-contact-info-side">
             <div className="hg-contact-info-inner">
-              <h2 className="hg-contact-info-title">{resolvedTitle}</h2>
+              {resolvedTitle ? <h2 className="hg-contact-info-title">{resolvedTitle}</h2> : null}
               <div className="hg-contact-accent" aria-hidden />
 
               {hasInfo && (

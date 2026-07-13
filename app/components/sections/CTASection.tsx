@@ -1,27 +1,17 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
-import { OptimizedImage, IMAGE_QUALITY_HIGH, IMAGE_SIZES } from '@/app/components/ui/OptimizedImage';
+import Image from 'next/image';
+import { useMemo } from 'react';
 import type { Page } from '@/app/lib/types';
 import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
 import { getPageHref } from '@/app/lib/siteContent';
 import { tiptapToText } from '@/app/lib/seo';
 import { cn, getImageSrc } from '@/app/lib/utils';
-import { usePrefersReducedMotion } from '@/app/hooks/usePrefersReducedMotion';
-import { ensureGsapScroll, gsap } from '@/app/lib/gsap-scroll';
 
 interface CTASectionProps {
   ctaSection?: Page['ctaSection'];
   className?: string;
-  subHeading?: string;
-  heading?: string;
-  description?: string;
-  ctaButton?: { href: string; label: string };
-  backgroundImage?: string;
 }
-
-const DEFAULT_CTA_IMAGE =
-  'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1600';
 
 function normalizeHref(href: string): string {
   const t = href.trim();
@@ -29,167 +19,77 @@ function normalizeHref(href: string): string {
   return t.startsWith('/') ? t : `/${t}`;
 }
 
-function isCmsUploadUrl(src: string): boolean {
-  return /\/uploads\//i.test(src);
-}
+export function CTASection({ ctaSection, className }: CTASectionProps) {
+  const { pages } = useWebBuilder();
 
-export function CTASection({
-  ctaSection,
-  className,
-  heading: headingOverride,
-  description: descriptionOverride,
-  ctaButton: ctaOverride,
-  backgroundImage: backgroundImageOverride,
-}: CTASectionProps) {
-  const { site, pages } = useWebBuilder();
-  const reducedMotion = usePrefersReducedMotion();
-  const sectionRef = useRef<HTMLElement>(null);
-  const bgRef = useRef<HTMLDivElement>(null);
-  const phoneNumber = site?.business?.phone?.trim() || '';
-
-  const heading = useMemo(
-    () =>
-      headingOverride ||
-      tiptapToText(ctaSection?.title) ||
-      'Professional Inspections for Every Real Estate Transaction',
-    [headingOverride, ctaSection?.title]
-  );
-
+  const heading = useMemo(() => tiptapToText(ctaSection?.title), [ctaSection?.title]);
   const description = useMemo(
-    () =>
-      descriptionOverride ||
-      tiptapToText(ctaSection?.description) ||
-      'Trusted by Realtors to help transactions close smoothly with Home, Roof, and Termite inspections—and reports designed for escrow.',
-    [descriptionOverride, ctaSection?.description]
+    () => tiptapToText(ctaSection?.description),
+    [ctaSection?.description]
   );
 
   const ctaButton = useMemo(() => {
-    if (ctaOverride) return ctaOverride;
     const label = ctaSection?.primaryButton?.label?.trim();
     const href = ctaSection?.primaryButton?.href?.trim();
     if (label && href) return { label, href: normalizeHref(href) };
-    const contactPage = pages?.find((p) => p.pageType === 'contact');
-    return {
-      label: label || 'Schedule Inspection',
-      href: contactPage ? getPageHref(contactPage) : '/contact-us',
-    };
-  }, [ctaOverride, ctaSection?.primaryButton, pages]);
+    if (label) {
+      const contactPage = pages?.find((p) => p.pageType === 'contact');
+      return {
+        label,
+        href: contactPage ? getPageHref(contactPage) : '/contact-us',
+      };
+    }
+    return null;
+  }, [ctaSection?.primaryButton, pages]);
 
-  const ctaImage = useMemo(() => {
-    if (backgroundImageOverride) return backgroundImageOverride;
+  const image = useMemo(() => {
     const bg = ctaSection?.backgroundImage;
     if (typeof bg === 'string' && bg.trim()) return getImageSrc(bg);
     const legacyImage = (ctaSection as { image?: { url?: string } } | undefined)?.image?.url;
     if (legacyImage?.trim()) return getImageSrc(legacyImage);
-    return DEFAULT_CTA_IMAGE;
-  }, [backgroundImageOverride, ctaSection]);
-
-  const customBg = ctaSection?.backgroundColor?.trim();
-
-  useEffect(() => {
-    if (!sectionRef.current || ctaSection?.enabled === false) return;
-    ensureGsapScroll();
-
-    if (reducedMotion) {
-      sectionRef.current.querySelectorAll('[data-cta-reveal]').forEach((el) => {
-        gsap.set(el, { opacity: 1, y: 0 });
-      });
-      if (bgRef.current) gsap.set(bgRef.current, { yPercent: 0, scale: 1 });
-      return;
-    }
-
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        sectionRef.current!.querySelectorAll('[data-cta-reveal]'),
-        { opacity: 0, y: 32 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.9,
-          stagger: 0.12,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-          },
-        }
-      );
-
-      if (bgRef.current) {
-        gsap.fromTo(
-          bgRef.current,
-          { yPercent: -18, scale: 1.18 },
-          {
-            yPercent: 18,
-            scale: 1.05,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 0.8,
-            },
-          }
-        );
-      }
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, [ctaSection?.enabled, reducedMotion, ctaImage]);
+    return '';
+  }, [ctaSection]);
 
   if (ctaSection?.enabled === false) return null;
+  if (!heading && !description && !ctaButton && !image) return null;
 
   return (
     <section
-      ref={sectionRef}
       id="cta"
-      className={cn('hg-cta-section', className)}
-      style={customBg ? { backgroundColor: customBg } : undefined}
+      className={cn('gb-cta', !image && 'gb-cta--no-media', className)}
     >
-      <div className="hg-cta-bg" aria-hidden>
-        <div ref={bgRef} className="hg-cta-bg-inner">
-          <OptimizedImage
-            src={ctaImage}
-            alt=""
-            fill
-            className="object-cover"
-            quality={IMAGE_QUALITY_HIGH}
-            sizes={IMAGE_SIZES.fullWidth}
-            unoptimized={isCmsUploadUrl(ctaImage)}
-          />
-        </div>
-        <div className="hg-cta-overlay" />
-      </div>
-
-      <div className="container relative z-10 mx-auto px-4 lg:px-8">
-        <div className="hg-cta-content mx-auto max-w-3xl text-center">
-          <h2 data-cta-reveal>{heading}</h2>
-          <p data-cta-reveal className="hg-cta-desc">
-            {description}
-          </p>
-
-          <div
-            data-cta-reveal
-            className="flex flex-col sm:flex-row items-center justify-center gap-5 sm:gap-6"
-          >
-            {phoneNumber && (
-              <div>
-                <p className="hg-cta-phone-label">Schedule an Appointment</p>
-                <a
-                  href={`tel:${phoneNumber.replace(/\s/g, '')}`}
-                  className="hg-phone-link text-xl"
-                >
-                  {phoneNumber}
-                </a>
-              </div>
-            )}
-            {ctaButton && (
-              <a href={ctaButton.href} className="hg-btn">
+      <div className="gb-cta-track">
+        <div className="gb-cta-sticky">
+          <div className="gb-cta-copy">
+            {heading ? <h2 className="gb-cta-title">{heading}</h2> : null}
+            {description ? <p className="gb-cta-desc">{description}</p> : null}
+            {ctaButton ? (
+              <a href={ctaButton.href} className="gb-btn-outline">
                 {ctaButton.label}
               </a>
-            )}
+            ) : null}
           </div>
+
+          {image ? (
+            <div className="gb-cta-media">
+              <Image
+                src={image}
+                alt={heading || ''}
+                fill
+                sizes="(max-width: 1024px) 100vw, 45vw"
+                quality={90}
+                className="gb-cta-image"
+              />
+            </div>
+          ) : null}
         </div>
+
+        {image ? (
+          <div className="gb-cta-frame" aria-hidden>
+            <div className="gb-cta-border gb-cta-border--top" />
+            <div className="gb-cta-border gb-cta-border--bottom" />
+          </div>
+        ) : null}
       </div>
     </section>
   );

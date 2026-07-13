@@ -4,14 +4,14 @@ import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
 import { Page } from '@/app/lib/types';
 import { Footer } from '@/app/components/layout/Footer';
 import { HeroSection } from '@/app/components/sections/HeroSection';
-import { ServicesSection } from '@/app/components/sections/ServicesSection';
 import { TestimonialsSection } from '@/app/components/sections/TestimonialsSection';
 import { FAQSection } from '@/app/components/sections/FAQSection';
 import { WhyChooseUsSection } from '@/app/components/sections/WhyChooseUsSection';
-import { OneCompanySection } from '@/app/components/sections/OneCompanySection';
+import { AboutSection } from '@/app/components/sections/AboutSection';
 import { CompanyDetailSection } from '@/app/components/sections/CompanyDetailSection';
 import { ContactSection } from './components/sections/ContactSection';
 import { CTASection } from '@/app/components/sections/CTASection';
+import { ServicesSection } from '@/app/components/sections/ServicesSection';
 import { getThemeColors } from '@/app/lib/themeBuilder';
 
 export default function HomeClient() {
@@ -95,7 +95,7 @@ export default function HomeClient() {
 
   return (
     <div
-      className="min-h-screen selection:bg-black/10 selection:text-inherit"
+      className="min-h-screen selection:bg-black/10 selection:text-inherit gb-site"
       style={{
         backgroundColor: themeColors.pageBackground,
         color: themeColors.mainText,
@@ -106,19 +106,16 @@ export default function HomeClient() {
         <HeroSection hero={displayPage.hero} page={displayPage} />
         <ServicesSection
           servicesSection={displayPage.servicesSection}
-          companyDetailSection={displayPage.companyDetailSection}
-          ctaSection={displayPage.ctaSection}
           page={displayPage}
-          servicesLimit={3}
-          compact
+          servicesLimit={5}
         />
         <WhyChooseUsSection whyChooseUsSection={displayPage.whyChooseUsSection} />
-        <OneCompanySection page={displayPage} />
+        <AboutSection aboutSection={displayPage.aboutSection} page={displayPage} />
         <CTASection ctaSection={displayPage.ctaSection} />
         <CompanyDetailSection companyDetailSection={displayPage.companyDetailSection} />
+        <TestimonialsSection testimonialsSection={displayPage.testimonialsSection} />
         <FAQSection faqSection={displayPage.faqSection} />
         <ContactSection contactSection={displayPage.contactSection} />
-        <TestimonialsSection testimonialsSection={displayPage.testimonialsSection} />
       </main>
       <Footer />
     </div>

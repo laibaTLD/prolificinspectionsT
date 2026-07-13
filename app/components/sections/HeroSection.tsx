@@ -1,42 +1,31 @@
 'use client';
 
 import Image from 'next/image';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { Page } from '@/app/lib/types';
+import Link from 'next/link';
+import { useEffect, useMemo, useRef } from 'react';
+import type { Page, Service } from '@/app/lib/types';
 import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
 import { tiptapToText } from '@/app/lib/seo';
-import {
-  getHeroEyebrowText,
-  getHeroTitleText,
-  getPrimaryHeroImageFromHero,
-} from '@/app/lib/siteContent';
 import { resolvePrimaryCta } from '@/app/components/ui/made';
 import { cn, getImageSrc } from '@/app/lib/utils';
+import { getBrandName, getPrimaryHeroImageFromHero } from '@/app/lib/siteContent';
+import { resolveServiceSlug } from '@/app/lib/serviceAreaSlugs';
+import { usePrefersReducedMotion } from '@/app/hooks/usePrefersReducedMotion';
+import { ensureGsapScroll, gsap } from '@/app/lib/gsap-scroll';
 
 interface HeroSectionProps {
   hero?: Page['hero'];
   page?: Page | null;
   className?: string;
-  title?: string;
-  subtitle?: string;
-  description?: string;
-  ctaButton?: { href: string; label: string };
-  backgroundImage?: string;
 }
 
-type HeroSlide = {
-  title: string;
-  subtitle: string;
-  imageUrl: string;
-};
+const HERO_SERVICE_POINTS = [
+  { key: 'home', match: 'home', label: 'Home Inspections' },
+  { key: 'roof', match: 'roof', label: 'Roof Inspections' },
+  { key: 'termite', match: 'termite', label: 'Termite (WDO) Inspections' },
+] as const;
 
-const FALLBACK_IMAGE =
-  'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1600';
-
-function collectHeroImages(
-  hero: Page['hero'] | undefined,
-  backgroundOverride?: string
-): string[] {
+function collectHeroImages(hero: Page['hero'] | undefined): string[] {
   const images: string[] = [];
   const seen = new Set<string>();
 
@@ -45,8 +34,6 @@ function collectHeroImages(
     seen.add(url);
     images.push(url);
   };
-
-  if (backgroundOverride?.trim()) add(backgroundOverride);
 
   const h = hero as Page['hero'] & { images?: unknown[] };
   for (const item of h?.mediaItems ?? h?.images ?? []) {
@@ -66,183 +53,164 @@ function collectHeroImages(
   const primary = getPrimaryHeroImageFromHero(hero);
   if (primary) add(primary);
 
-  return images.length ? images : [FALLBACK_IMAGE];
+  return images;
 }
 
-export function HeroSection({
-  hero,
-  page,
-  className,
-  title: titleOverride,
-  subtitle: subtitleOverride,
-  description: descriptionOverride,
-  backgroundImage: backgroundOverride,
-}: HeroSectionProps) {
-  const { site, pages } = useWebBuilder();
-  const [activeIndex, setActiveIndex] = useState(0);
+function findService(services: Service[], match: string): Service | undefined {
+  return services.find((s) => s.status === 'published' && s.name?.toLowerCase().includes(match));
+}
 
-  const phoneNumber = site?.business?.phone?.trim() || '';
+export function HeroSection({ hero, page, className }: HeroSectionProps) {
+  const { site, pages, services } = useWebBuilder();
+  const brandName = getBrandName(site);
+  const reducedMotion = usePrefersReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const mediaInnerRef = useRef<HTMLDivElement>(null);
 
-  const slides = useMemo((): HeroSlide[] => {
-    const images = collectHeroImages(hero, backgroundOverride);
-    const result: HeroSlide[] = [];
-
-    const mainTitle = titleOverride || getHeroTitleText(hero, site);
-    const mainSubtitle =
-      subtitleOverride ||
-      descriptionOverride ||
-      tiptapToText(hero?.description) ||
-      getHeroEyebrowText(hero, site) ||
-      'Helping Realtors, buyers, and sellers make informed decisions with comprehensive Home, Roof, and Termite inspections—all through one seamless inspection experience.';
-
-    result.push({
-      title: mainTitle,
-      subtitle: mainSubtitle,
-      imageUrl: images[0],
-    });
-
-    const companyDetails = page?.companyDetailSection?.details ?? [];
-    for (const detail of companyDetails) {
-      const title = tiptapToText(detail.title) || detail.label?.trim() || '';
-      const subtitle =
-        tiptapToText(detail.description) || tiptapToText(detail.value) || '';
-      const imageUrl = detail.image?.url ? getImageSrc(detail.image.url) : images[0];
-      if (title) {
-        result.push({ title, subtitle, imageUrl });
-      }
-    }
-
-    const whyItems = page?.whyChooseUsSection?.items ?? [];
-    for (const item of whyItems) {
-      const title = tiptapToText(item.title);
-      const subtitle = tiptapToText(item.description);
-      if (title) {
-        result.push({
-          title,
-          subtitle,
-          imageUrl: images[result.length % images.length] ?? images[0],
-        });
-      }
-    }
-
-    if (result.length === 1 && images.length > 1) {
-      return images.map((imageUrl, index) => ({
-        title: mainTitle,
-        subtitle: mainSubtitle,
-        imageUrl,
-      }));
-    }
-
-    return result.map((slide, index) => ({
-      ...slide,
-      imageUrl: slide.imageUrl || images[index % images.length] || images[0],
-    }));
-  }, [
-    hero,
-    site,
-    page,
-    titleOverride,
-    subtitleOverride,
-    descriptionOverride,
-    backgroundOverride,
-  ]);
+  const title = useMemo(() => tiptapToText(hero?.title), [hero?.title]);
+  const description = useMemo(() => {
+    const fromDesc = tiptapToText(hero?.description);
+    if (fromDesc) return fromDesc;
+    return tiptapToText(hero?.subtitle);
+  }, [hero?.description, hero?.subtitle]);
 
   const ctaButton = useMemo(() => {
     const fromPage = resolvePrimaryCta(page, site, pages);
-    if (fromPage) return fromPage;
+    if (fromPage?.label?.trim() && fromPage?.href?.trim()) return fromPage;
     if (hero?.primaryCta?.label?.trim() && hero?.primaryCta?.href?.trim()) {
-      return { label: hero.primaryCta.label.trim(), href: hero.primaryCta.href.trim() };
+      return {
+        label: hero.primaryCta.label.trim(),
+        href: hero.primaryCta.href.trim(),
+      };
     }
-    return { href: '#contact', label: 'Schedule Inspection' };
+    return null;
   }, [page, site, pages, hero?.primaryCta]);
 
-  const goNext = useCallback(() => {
-    setActiveIndex((prev) => (prev + 1) % slides.length);
-  }, [slides.length]);
+  const heroImage = useMemo(() => collectHeroImages(hero)[0] || '', [hero]);
 
-  const goPrev = useCallback(() => {
-    setActiveIndex((prev) => (prev - 1 + slides.length) % slides.length);
-  }, [slides.length]);
+  const servicePoints = useMemo(() => {
+    const ids = page?.servicesSection?.serviceIds ?? [];
+    const pool =
+      ids.length > 0
+        ? ids
+            .map((id) => services.find((s) => s._id === id))
+            .filter((s): s is Service => Boolean(s))
+        : services;
+
+    return HERO_SERVICE_POINTS.map((item) => {
+      const match = findService(pool, item.match) || findService(services, item.match);
+      return {
+        key: item.key,
+        label: match?.name?.trim() || item.label,
+        href: match ? `/service/${resolveServiceSlug(match)}` : '/services',
+      };
+    });
+  }, [services, page?.servicesSection?.serviceIds]);
 
   useEffect(() => {
-    if (slides.length <= 1) return;
-    const interval = setInterval(goNext, 6000);
-    return () => clearInterval(interval);
-  }, [slides.length, goNext]);
+    if (!sectionRef.current || hero?.enabled === false) return;
+    ensureGsapScroll();
+
+    const ctx = gsap.context(() => {
+      const reveals = sectionRef.current!.querySelectorAll('[data-hero-reveal]');
+
+      if (reducedMotion) {
+        gsap.set(reveals, { opacity: 1, y: 0 });
+        if (mediaInnerRef.current) gsap.set(mediaInnerRef.current, { yPercent: 0, scale: 1 });
+        return;
+      }
+
+      gsap.fromTo(
+        reveals,
+        { opacity: 0, y: 24 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.85,
+          stagger: 0.12,
+          ease: 'power3.out',
+          delay: 0.08,
+        }
+      );
+
+      if (mediaInnerRef.current) {
+        gsap.fromTo(
+          mediaInnerRef.current,
+          { yPercent: -10, scale: 1.1 },
+          {
+            yPercent: 10,
+            scale: 1.03,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 0.7,
+            },
+          }
+        );
+      }
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [hero?.enabled, reducedMotion, heroImage, title, description]);
 
   if (hero?.enabled === false) return null;
+  if (!title && !description && !heroImage) return null;
 
   return (
-    <section id="home" className={cn('wb-surface-page', className)}>
-      <div className="hg-hero-carousel">
-        {slides.map((slide, index) => (
-          <div
-            key={index}
-            className={cn(
-              'hg-hero-slide transition-opacity duration-700',
-              index === activeIndex
-                ? 'opacity-100 relative z-[1]'
-                : 'opacity-0 absolute inset-0 z-0 pointer-events-none'
-            )}
-            aria-hidden={index !== activeIndex}
-          >
-            <div className="hg-hero-bg">
-              <Image
-                src={slide.imageUrl || FALLBACK_IMAGE}
-                alt={slide.title}
-                fill
-                className="object-cover object-center"
-                priority={index === 0}
-                sizes="100vw"
-              />
-            </div>
-
-            <div className="hg-hero-slide-inner">
-              <div className="hg-hero-overlay-panel">
-                <h2>{slide.title}</h2>
-                {slide.subtitle && <p className="hg-hero-subtitle">{slide.subtitle}</p>}
-                <div className="hg-hero-actions">
-                  {phoneNumber && (
-                    <a
-                      href={`tel:${phoneNumber.replace(/\s/g, '')}`}
-                      className="hg-phone-link text-lg"
-                    >
-                      {phoneNumber}
-                    </a>
-                  )}
-                  <a href={ctaButton.href} className="hg-btn">
-                    {ctaButton.label}
-                  </a>
-                </div>
-              </div>
-            </div>
+    <section
+      ref={sectionRef}
+      id="home"
+      className={cn('gb-hero', !heroImage && 'gb-hero--no-media', className)}
+    >
+      {heroImage ? (
+        <div className="gb-hero-bg" aria-hidden={!title && !description}>
+          <div ref={mediaInnerRef} className="gb-hero-media-parallax">
+            <Image
+              src={heroImage}
+              alt={title || brandName || ''}
+              fill
+              priority
+              sizes="100vw"
+              className="gb-hero-image"
+            />
           </div>
-        ))}
+        </div>
+      ) : null}
 
-        {slides.length > 1 && (
-          <>
-            <button
-              type="button"
-              onClick={goPrev}
-              className="hg-hero-arrow hg-hero-arrow-prev"
-              aria-label="Previous slide"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              onClick={goNext}
-              className="hg-hero-arrow hg-hero-arrow-next"
-              aria-label="Next slide"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </>
-        )}
+      <div className="gb-hero-panel">
+        <div className="gb-hero-copy-inner">
+          {title ? (
+            <h1 data-hero-reveal className="gb-hero-title">
+              {title}
+            </h1>
+          ) : null}
+          {description ? (
+            <p data-hero-reveal className="gb-hero-desc">
+              {description}
+            </p>
+          ) : null}
+
+          <div data-hero-reveal className="gb-hero-services" role="list">
+            {servicePoints.map((item) => (
+              <Link
+                key={item.key}
+                href={item.href}
+                className="gb-hero-service-card"
+                role="listitem"
+              >
+                <span className="gb-hero-service-label">{item.label}</span>
+              </Link>
+            ))}
+          </div>
+
+          {ctaButton ? (
+            <a data-hero-reveal href={ctaButton.href} className="gb-btn-outline gb-hero-cta">
+              {ctaButton.label}
+            </a>
+          ) : null}
+        </div>
       </div>
     </section>
   );

@@ -21,7 +21,7 @@ export function getHeroEyebrowText(hero?: Page['hero'], site?: Site | null): str
 export function getHeroTitleText(hero?: Page['hero'], site?: Site | null): string {
   const title = tiptapToText(hero?.title);
   if (title) return title;
-  return 'Everything You Need for a Successful Real Estate Transaction';
+  return getBrandName(site);
 }
 
 export function getHeroDescriptionExcerpt(hero?: Page['hero'], maxLen = 120): string {
