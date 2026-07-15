@@ -96,6 +96,9 @@ export function CompanyDetailSection({
                           alt={item.imageAlt}
                           fill
                           sizes="(max-width: 768px) 72vw, 280px"
+                          quality={75}
+                          loading="lazy"
+                          decoding="async"
                           className="object-cover"
                         />
                       </div>

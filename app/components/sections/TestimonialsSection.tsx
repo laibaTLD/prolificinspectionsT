@@ -168,6 +168,9 @@ export function TestimonialsSection({
                         alt=""
                         fill
                         sizes="48px"
+                        quality={75}
+                        loading="lazy"
+                        decoding="async"
                         className="object-cover"
                       />
                     ) : (

@@ -119,7 +119,9 @@ export function AboutSection({ aboutSection, page, className }: AboutSectionProp
                   alt={aboutSection?.image?.altText || title || ''}
                   fill
                   sizes="(max-width: 1024px) 100vw, 45vw"
-                  quality={90}
+                  quality={85}
+                  loading="lazy"
+                  decoding="async"
                   className="gb-about-image"
                 />
               </div>

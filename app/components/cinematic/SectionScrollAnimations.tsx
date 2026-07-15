@@ -5,8 +5,12 @@ import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
 import { usePrefersReducedMotion } from '@/app/hooks/usePrefersReducedMotion';
 import { ensureGsapScroll, gsap, refreshScrollLayout } from '@/app/lib/gsap-scroll';
 
-const SECTION_SELECTOR =
-  'main section:not(#cta):not(#contact), main .hg-section:not(#cta):not(#contact), main .hg-testimonials-section, main .hg-realtors-section';
+const SECTION_SELECTOR = [
+  'main .hg-section:not(#cta):not(#contact)',
+  'main .hg-testimonials-section',
+  'main .hg-realtors-section',
+  'main .hg-one-company-section',
+].join(', ');
 
 const TEXT_REVEAL_SELECTOR = [
   '.hg-section-title',

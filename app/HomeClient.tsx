@@ -1,18 +1,74 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useWebBuilder } from '@/app/providers/WebBuilderProvider';
 import { Page } from '@/app/lib/types';
 import { Footer } from '@/app/components/layout/Footer';
 import { HeroSection } from '@/app/components/sections/HeroSection';
-import { TestimonialsSection } from '@/app/components/sections/TestimonialsSection';
-import { FAQSection } from '@/app/components/sections/FAQSection';
-import { WhyChooseUsSection } from '@/app/components/sections/WhyChooseUsSection';
 import { AboutSection } from '@/app/components/sections/AboutSection';
-import { CompanyDetailSection } from '@/app/components/sections/CompanyDetailSection';
-import { ContactSection } from './components/sections/ContactSection';
-import { CTASection } from '@/app/components/sections/CTASection';
-import { ServicesSection } from '@/app/components/sections/ServicesSection';
+import { ScrollPerfSection } from '@/app/components/performance/ScrollPerfSection';
 import { getThemeColors } from '@/app/lib/themeBuilder';
+
+function SectionFallback({ height = '36vh' }: { height?: string }) {
+  return <div className="gb-defer-skel" style={{ minHeight: height }} aria-hidden />;
+}
+
+/* Below-fold sections: separate JS chunks for faster initial load */
+const ServicesSection = dynamic(
+  () =>
+    import('@/app/components/sections/ServicesSection').then((m) => ({
+      default: m.ServicesSection,
+    })),
+  { ssr: true, loading: () => <SectionFallback height="48vh" /> }
+);
+
+const WhyChooseUsSection = dynamic(
+  () =>
+    import('@/app/components/sections/WhyChooseUsSection').then((m) => ({
+      default: m.WhyChooseUsSection,
+    })),
+  { ssr: true, loading: () => <SectionFallback /> }
+);
+
+const CTASection = dynamic(
+  () =>
+    import('@/app/components/sections/CTASection').then((m) => ({
+      default: m.CTASection,
+    })),
+  { ssr: true, loading: () => <SectionFallback height="28vh" /> }
+);
+
+const CompanyDetailSection = dynamic(
+  () =>
+    import('@/app/components/sections/CompanyDetailSection').then((m) => ({
+      default: m.CompanyDetailSection,
+    })),
+  { ssr: true, loading: () => <SectionFallback height="50vh" /> }
+);
+
+const TestimonialsSection = dynamic(
+  () =>
+    import('@/app/components/sections/TestimonialsSection').then((m) => ({
+      default: m.TestimonialsSection,
+    })),
+  { ssr: true, loading: () => <SectionFallback /> }
+);
+
+const FAQSection = dynamic(
+  () =>
+    import('@/app/components/sections/FAQSection').then((m) => ({
+      default: m.FAQSection,
+    })),
+  { ssr: true, loading: () => <SectionFallback height="30vh" /> }
+);
+
+const ContactSection = dynamic(
+  () =>
+    import('@/app/components/sections/ContactSection').then((m) => ({
+      default: m.ContactSection,
+    })),
+  { ssr: true, loading: () => <SectionFallback height="40vh" /> }
+);
 
 export default function HomeClient() {
   const { site, pages, loading, error } = useWebBuilder();
@@ -105,22 +161,36 @@ export default function HomeClient() {
       <main>
         <HeroSection hero={displayPage.hero} page={displayPage} />
         <AboutSection aboutSection={displayPage.aboutSection} page={displayPage} />
-        <ServicesSection
-          servicesSection={displayPage.servicesSection}
-          page={displayPage}
-          servicesLimit={3}
-          showViewAllLink
-        />
-        <WhyChooseUsSection whyChooseUsSection={displayPage.whyChooseUsSection} />
-        <CTASection ctaSection={displayPage.ctaSection} />
-        <CompanyDetailSection companyDetailSection={displayPage.companyDetailSection} />
-        <TestimonialsSection
-          testimonialsSection={displayPage.testimonialsSection}
-          limit={4}
-          showViewAllLink
-        />
-        <FAQSection faqSection={displayPage.faqSection} />
-        <ContactSection contactSection={displayPage.contactSection} />
+        <ScrollPerfSection intrinsicSize="560px">
+          <ServicesSection
+            servicesSection={displayPage.servicesSection}
+            page={displayPage}
+            servicesLimit={3}
+            showViewAllLink
+          />
+        </ScrollPerfSection>
+        <ScrollPerfSection intrinsicSize="420px">
+          <WhyChooseUsSection whyChooseUsSection={displayPage.whyChooseUsSection} />
+        </ScrollPerfSection>
+        <ScrollPerfSection intrinsicSize="320px">
+          <CTASection ctaSection={displayPage.ctaSection} />
+        </ScrollPerfSection>
+        <ScrollPerfSection intrinsicSize="560px">
+          <CompanyDetailSection companyDetailSection={displayPage.companyDetailSection} />
+        </ScrollPerfSection>
+        <ScrollPerfSection intrinsicSize="420px">
+          <TestimonialsSection
+            testimonialsSection={displayPage.testimonialsSection}
+            limit={4}
+            showViewAllLink
+          />
+        </ScrollPerfSection>
+        <ScrollPerfSection intrinsicSize="360px">
+          <FAQSection faqSection={displayPage.faqSection} />
+        </ScrollPerfSection>
+        <ScrollPerfSection intrinsicSize="480px">
+          <ContactSection contactSection={displayPage.contactSection} />
+        </ScrollPerfSection>
       </main>
       <Footer />
     </div>

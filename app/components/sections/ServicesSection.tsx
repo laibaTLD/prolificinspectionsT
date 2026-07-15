@@ -13,16 +13,6 @@ import { resolveServiceSlug } from '@/app/lib/serviceAreaSlugs';
 import { getPageHref } from '@/app/lib/siteContent';
 import { ensureGsapScroll, gsap } from '@/app/lib/gsap-scroll';
 import { usePrefersReducedMotion } from '@/app/hooks/usePrefersReducedMotion';
-import { useThemeFonts } from '@/app/hooks/useTheme';
-
-function cssFontFamily(font?: string): string | undefined {
-  const value = font?.trim();
-  if (!value) return undefined;
-  if (value.includes(' ') && !value.startsWith('"') && !value.startsWith("'")) {
-    return `"${value}"`;
-  }
-  return value;
-}
 
 interface ServicesSectionProps {
   servicesSection?: Page['servicesSection'];
@@ -88,13 +78,7 @@ export function ServicesSection({
 }: ServicesSectionProps) {
   const { services: allServices, pages } = useWebBuilder();
   const reducedMotion = usePrefersReducedMotion();
-  const themeFonts = useThemeFonts();
   const sectionRef = useRef<HTMLElement>(null);
-
-  const headingFont = cssFontFamily(themeFonts.heading);
-  const bodyFont = cssFontFamily(themeFonts.body);
-  const headingStyle = headingFont ? { fontFamily: headingFont } : undefined;
-  const bodyStyle = bodyFont ? { fontFamily: bodyFont } : undefined;
 
   const { services, hasMoreServices } = useMemo(() => {
     const published = allServices.filter((s) => s.status === 'published');
@@ -252,19 +236,14 @@ export function ServicesSection({
   if (!services.length) return null;
 
   return (
-    <section
-      ref={sectionRef}
-      id="services"
-      className={cn('gb-svc', className)}
-      style={bodyStyle}
-    >
+    <section ref={sectionRef} id="services" className={cn('gb-svc', className)}>
       <div className="gb-container">
         <header className="gb-svc-head">
-          <h2 data-svc-head className="gb-svc-title" style={headingStyle}>
+          <h2 data-svc-head className="gb-svc-title">
             {title}
           </h2>
           {description ? (
-            <p data-svc-head className="gb-svc-desc" style={bodyStyle}>
+            <p data-svc-head className="gb-svc-desc">
               {description}
             </p>
           ) : null}
@@ -287,6 +266,9 @@ export function ServicesSection({
                       alt=""
                       fill
                       sizes="(max-width: 900px) 100vw, 50vw"
+                      quality={75}
+                      loading="lazy"
+                      decoding="async"
                       className="object-cover"
                     />
                   ) : (
@@ -296,23 +278,15 @@ export function ServicesSection({
                   )}
                 </div>
 
-                <div data-svc-panel className="gb-svc-panel" style={bodyStyle}>
+                <div data-svc-panel className="gb-svc-panel">
                   <span className="gb-svc-icon" aria-hidden>
                     <Icon strokeWidth={1.6} />
                   </span>
-                  <h3 className="gb-svc-name" style={headingStyle}>
-                    {service.name}
-                  </h3>
+                  <h3 className="gb-svc-name">{service.name}</h3>
                   {service.description ? (
-                    <p className="gb-svc-copy" style={bodyStyle}>
-                      {service.description}
-                    </p>
+                    <p className="gb-svc-copy">{service.description}</p>
                   ) : null}
-                  <Link
-                    href={`/service/${service.slug}`}
-                    className="gb-svc-link"
-                    style={bodyStyle}
-                  >
+                  <Link href={`/service/${service.slug}`} className="gb-svc-link">
                     Learn more
                   </Link>
                 </div>
@@ -324,7 +298,7 @@ export function ServicesSection({
 
       {showViewAllLink && hasMoreServices ? (
         <div data-svc-actions className="gb-svc-actions">
-          <Link href={servicesHref} className="gb-svc-more" style={bodyStyle}>
+          <Link href={servicesHref} className="gb-svc-more">
             See more
           </Link>
         </div>

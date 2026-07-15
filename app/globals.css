@@ -107,6 +107,20 @@ body {
   background-color: var(--wb-page-bg);
 }
 
+/* Lightweight placeholder while deferred sections approach viewport */
+.gb-defer-skel {
+  width: 100%;
+  min-height: inherit;
+  background: color-mix(in srgb, var(--wb-text-main) 3.5%, var(--wb-page-bg));
+}
+
+@supports (content-visibility: auto) {
+  .gb-scroll-perf {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 480px;
+  }
+}
+
 /* Hero editorial — site builder body (bold) + heading (italic) */
 .hero-editorial-sans {
   font-family: var(--wb-body-font), ui-sans-serif, system-ui, sans-serif !important;
